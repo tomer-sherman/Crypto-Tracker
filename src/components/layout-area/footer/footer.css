@@ -1,0 +1,90 @@
+/* Scope strictly to the Footer component */
+.Footer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* High-tech scanning laser border on the top edge */
+.Footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(0, 243, 255, 0.8),
+            transparent);
+    animation: laserScan 4s linear infinite;
+}
+
+/* Footer Typography */
+.Footer p {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.3);
+    /* Dimmed out so it doesn't distract from the main app */
+    transition: all 0.3s ease;
+}
+
+/* Hover glow effect for both paragraphs */
+.Footer p:hover {
+    color: rgba(226, 232, 240, 0.8);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+/* Target the "learning code" paragraph without needing a new class */
+.Footer p:last-child {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Blinking terminal cursor for the coding vibe */
+.Footer p:last-child::after {
+    content: "_";
+    color: #00f3ff;
+    margin-left: 4px;
+    text-shadow: 0 0 8px #00f3ff;
+    animation: blinkCursor 1s step-end infinite;
+}
+
+/* --- Animations --- */
+
+@keyframes laserScan {
+    0% {
+        left: -100%;
+    }
+
+    50% {
+        left: 200%;
+        /* Sweeps all the way across */
+    }
+
+    100% {
+        left: 200%;
+        /* Pauses off-screen before repeating */
+    }
+}
+
+@keyframes blinkCursor {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}

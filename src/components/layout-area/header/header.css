@@ -1,0 +1,73 @@
+/* Scope strictly to the Header component */
+.Header {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    /* Centers the text vertically */
+    justify-content: center;
+    /* Centers the text horizontally */
+    position: relative;
+    overflow: hidden;
+
+    /* --- High-Tech Scroll-Driven Parallax --- */
+    background-image:
+        linear-gradient(90deg, rgba(7, 9, 14, 0.95) 0%, rgba(17, 22, 34, 0.5) 50%, rgba(7, 9, 14, 0.95) 100%),
+        url('../../../assets/city.jpg');
+
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 150vw 100vh;
+    background-position: 0% center;
+
+    animation: panOnScroll linear;
+    animation-timeline: scroll();
+}
+
+/* The "Crypto Tracker" Typography - Scrolling Hero Text */
+.Header p {
+    /* REMOVED position: fixed - It now naturally sits in the hero section */
+    margin: 0;
+    font-size: 10rem;
+    /* Scaled up for hero impact */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    z-index: 2;
+
+    background: linear-gradient(90deg,
+            #00f3ff 0%,
+            #bc13fe 25%,
+            #00f3ff 50%,
+            #bc13fe 75%,
+            #00f3ff 100%);
+    background-size: 200% auto;
+    color: #fff;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 12px rgba(0, 243, 255, 0.4));
+    animation: textShimmer 3s linear infinite;
+}
+
+/* --- Animations --- */
+@keyframes textShimmer {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 50% center;
+    }
+}
+
+@keyframes panOnScroll {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 100% center;
+    }
+}

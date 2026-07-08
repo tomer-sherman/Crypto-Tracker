@@ -1,0 +1,151 @@
+/* Scope strictly to the NavMenu */
+/* Scope strictly to the NavMenu */
+.NavMenu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+
+    /* Dropped from 0.95 to 0.75 for a perfect transparent glass effect */
+    background: rgba(17, 22, 34, 0.50);
+
+    /* The blur keeps the text readable even with the transparent background */
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(12px);
+
+    padding: 0.75rem 4rem;
+
+    /* Flat top bar look */
+    border-bottom: 1px solid rgba(0, 243, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Base styles for the React Router NavLinks */
+.NavMenu a {
+    box-sizing: border-box;
+    /* Ensures padding/borders don't break the height */
+    position: relative;
+
+    /* Flexbox inside the link ensures text is mathematically centered */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* UNIFIED HEIGHT FIX */
+    height: 42px;
+    padding: 0 1.5rem;
+
+    text-decoration: none;
+    color: rgba(226, 232, 240, 0.6);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+
+    overflow: hidden;
+    /* Brought back the snappy transition timing */
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* --- RESTORED: High-Tech Sweep Animation Setup --- */
+.NavMenu a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(0, 243, 255, 0.4),
+            transparent);
+    transform: skewX(-25deg);
+    transition: left 0s;
+}
+
+/* --- RESTORED: Hover Effects (Pop-up and Sweep) --- */
+.NavMenu a:hover {
+    color: #fff;
+    background: rgba(0, 243, 255, 0.05);
+    border-color: rgba(0, 243, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 243, 255, 0.1);
+    transform: translateY(-3px);
+    /* The physical pop-up */
+}
+
+/* Trigger the sweep animation on hover */
+.NavMenu a:hover::before {
+    left: 200%;
+    transition: left 0.4s ease-out;
+}
+
+/* --- RESTORED: Active State (Pop-up and Glow) --- */
+/* Active State - Perfectly aligned, no physical jump */
+.NavMenu a.active {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(188, 19, 254, 0.1) 0%, rgba(0, 243, 255, 0.05) 100%);
+    border-color: rgba(188, 19, 254, 0.5);
+
+    /* Kept the bottom glow, but removed the transform: translateY(-3px) */
+    box-shadow:
+        0 0 15px rgba(188, 19, 254, 0.15),
+        inset 0 -3px 0 #00f3ff;
+
+    /* Forces the box to stay perfectly aligned with the input */
+    transform: translateY(0);
+}
+
+/* High-Tech Search Input */
+.NavMenu input {
+    box-sizing: border-box;
+    height: 42px;
+    padding: 0 1.2rem;
+
+    /* REMOVED margin-left: auto; so it stays grouped with the links */
+    margin: 0;
+
+    width: 140px;
+    text-align: center;
+    background: rgba(10, 14, 23, 0.6);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 4px;
+    color: #00f3ff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Input Hover & Focus */
+.NavMenu input:hover {
+    border-color: rgba(0, 243, 255, 0.5);
+}
+
+.NavMenu input:focus {
+    /* Much more subtle expansion animation */
+    width: 160px;
+
+    background: rgba(17, 22, 34, 0.95);
+    border-color: rgba(188, 19, 254, 0.8);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+}
+
+/* Placeholder visibility toggles */
+.NavMenu input::placeholder {
+    color: rgba(0, 243, 255, 0.5);
+    transition: color 0.2s ease-in-out;
+}
+
+.NavMenu input:focus::placeholder {
+    color: transparent;
+}
