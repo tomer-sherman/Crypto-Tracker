@@ -8,7 +8,7 @@
     gap: 1.5rem;
 
     /* Dropped from 0.95 to 0.75 for a perfect transparent glass effect */
-    background: rgba(17, 22, 34, 0.50);
+    background: rgba(17, 22, 34, 1);
 
     /* The blur keeps the text readable even with the transparent background */
     backdrop-filter: blur(1.5px);

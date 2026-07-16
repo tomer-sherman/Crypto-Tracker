@@ -1,3 +1,10 @@
+/* home.css */
+
 .Home {
-	
+    width: 100%;
+    max-width: 1600px; 
+    margin: 0 auto; 
+    
+    /* Changed the top padding from 80px down to 30px so it sits higher */
+    padding: 115px 20px 20px 20px; 
 }

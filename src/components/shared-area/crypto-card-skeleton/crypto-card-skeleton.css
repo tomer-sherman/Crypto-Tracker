@@ -1,0 +1,40 @@
+.CryptoCardSkeleton {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 4px 15px;
+
+    width: 280px;
+    height: 161px;
+    /* Matches your real card height */
+    padding: 24px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #0d111d 0%, #06080e 100%);
+    border: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.skeleton-image-wrapper {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+.skeleton-text-wrapper {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.skeleton-switch-wrapper {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    justify-self: end;
+}
+
+.skeleton-button-wrapper {
+    grid-column: 1 / span 3;
+    margin-top: 18px;
+    width: 100%;
+}

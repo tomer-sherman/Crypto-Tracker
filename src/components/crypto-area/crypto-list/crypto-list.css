@@ -1,3 +1,19 @@
+/* crypto-list.css */
+
 .CryptoList {
-	
+    width: 100%;
+    /* Increased from 1200px to 1600px to allow space for 5 cards per row */
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-top: 30px;
+    padding-bottom: 120px;
+}
+
+.cards-grid {
+    display: grid;
+    /* Forces exactly 5 columns, each taking up an equal fraction of the space */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    justify-items: center;
 }

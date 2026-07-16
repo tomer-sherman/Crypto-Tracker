@@ -1,0 +1,86 @@
+/* pagination-menu.css */
+
+/* pagination-menu.css */
+
+.PaginationMenu {
+    display: flex;
+    justify-content: center;
+    /* Centers it perfectly where your red circle is */
+    align-items: center;
+    gap: 12px;
+
+    /* Adjust margins for top placement */
+    margin-top: 10px;
+    margin-bottom: 30px;
+    /* Gives nice breathing room between the menu and the cards */
+    width: 100%;
+}
+
+/* Keep the rest of your button CSS exactly the same! */
+.page-numbers {
+    display: flex;
+    gap: 6px;
+}
+
+/* ... nav-btn, number-btn, etc. stay exactly as they were ... */
+
+/* The Back and Next Buttons */
+.nav-btn {
+    padding: 6px 14px;
+    /* Smaller padding */
+    border-radius: 6px;
+    border: 1px solid rgba(160, 170, 191, 0.3);
+    /* Subtle, muted border */
+    background: transparent;
+    color: #a0aabf;
+    /* Muted text color instead of bright cyan */
+    font-size: 12px;
+    /* Smaller font */
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+    border-color: rgba(0, 240, 255, 0.4);
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.05);
+    /* Very slight hover effect */
+}
+
+.nav-btn:disabled {
+    border-color: #2a3655;
+    color: #2a3655;
+    cursor: not-allowed;
+}
+
+/* The Number Buttons */
+.number-btn {
+    width: 30px;
+    /* Smaller circles */
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    /* Removed the solid dark background */
+    color: #a0aabf;
+    font-size: 13px;
+    /* Smaller font */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.number-btn:hover:not(.active) {
+    background: #1a2235;
+    color: #ffffff;
+}
+
+/* The Active Page Indicator */
+.number-btn.active {
+    background: linear-gradient(90deg, #bf00ff 0%, #00f0ff 100%);
+    color: #ffffff;
+    /* Toned down the shadow and removed the scale/pop-out effect for a cleaner look */
+    box-shadow: 0 2px 8px rgba(191, 0, 255, 0.3);
+}
