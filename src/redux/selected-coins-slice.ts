@@ -1,26 +1,35 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SelectedCoinModel } from "../models/selected-coin-model";
+import { CoinModel } from "../models/coin-model";
 
-function addSelectedCoin(currentState: SelectedCoinModel[], action: PayloadAction<SelectedCoinModel>): SelectedCoinModel[] {
+
+function selectedCoin(currentState: CoinModel[], action: PayloadAction<CoinModel>): CoinModel[] {
     const coinToAdd = action.payload;
+    const isAlreadySelected = currentState.some(coin => coin.id === coinToAdd.id);
 
-    // 1. Check at the very beginning
-    const isAlreadySelected = currentState.some(coin => coin.symbol === coinToAdd.symbol);
+    if (currentState.length >= 6) { throw new Error("Cannot exceed 5 selected coins, and 1 pending coin.") }
 
-    // 2. Early return: if it's already there, return the exact same state reference
-    if (isAlreadySelected) {
-        return currentState;
-    }
 
-    // 3. If we got here, it's safe to clone and add
+    if (isAlreadySelected) return currentState;
     const newState = [...currentState];
     newState.push(coinToAdd);
-
     return newState;
 }
 
+function unSelectCoin(currentState: CoinModel[], action: PayloadAction<string>): CoinModel[] {
+    const coinToUnselect = action.payload;
+    const newState = [...currentState];
+    const index = newState.findIndex(c => c.id === coinToUnselect);
+    if (index >= 0) newState.splice(index, 1);
+    return newState;
+
+}
+
+
+
+
 export const selectedCoinsSlice = createSlice({
     name: "selected-coins-slice",
-    initialState: [] as SelectedCoinModel[],
-    reducers: { addSelectedCoin }
+    initialState:
+        [] as CoinModel[],
+    reducers: { selectedCoin, unSelectCoin }
 });

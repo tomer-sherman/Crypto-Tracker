@@ -1,26 +1,26 @@
+import { useSelector } from "react-redux";
 import "./checked-coin-list.css";
+import { AppState } from "../../../redux/app-state";
+import { CoinModel } from "../../../models/coin-model";
+import { SelectedCoinCard } from "../selected-coin-card/selected-coin-card";
 
 export function CheckedCoinList() {
+    const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
+    const count = selectedCoins.length;
+
     return (
         <div className="CheckedCoinList">
-           
-            <h1>selected crypto coins:</h1>
-            
-
-            <div className="checked-cards-wrapper">
-           
-
-                {/* Future cards go here */}
-            </div>
+            <h1>Selected crypto coins:</h1>
 
 
-            <p className="limit-warning">👾 You can only highlight 5 crypto coins selected !!!</p>
+            {count === 0 ?
+                (<div className="placeholder-mini-card"></div>)
+                :
+                (<div className="checked-cards-wrapper">
+                    {selectedCoins.map(coin => (<SelectedCoinCard key={coin.id} coin={coin} />))}
+                </div>)}
 
-            {/* NEW: The subtle horizontal line */}
-          
-
-
-
+            <p className="limit-warning">👾 You can only select 5 crypto coins !!!</p>
 
         </div>
     );

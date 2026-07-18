@@ -18,7 +18,7 @@ export function CryptoList() {
     useEffect(() => {
         coinService.getHundredCoins()
             .then(allCoins => setCoins(allCoins))
-            .catch(err => notify.error(err.message || "Failed to fetch coins"))
+            .catch(err => notify.error(err.message))
             .finally(() => { setIsLoading(false); });
     }, []);
 
