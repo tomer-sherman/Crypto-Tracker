@@ -14,9 +14,10 @@ export function NavMenu() {
     const currentSearch = useSelector<AppState, string>(state => state.searchQuery);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        // This fires automatically on every keystroke. No button required!
-        searchQuerySlice.actions.updateSearchQuery(event.target.value);
-        console.log(store.getState().searchQuery);
+        
+        const action = searchQuerySlice.actions.updateSearchQuery(event.target.value);
+        store.dispatch(action);
+
     };
 
 
@@ -34,8 +35,9 @@ export function NavMenu() {
             <input
                 type="text"
                 placeholder="COIN SEARCH"
-                value={currentSearch} // Forces the input to display exactly what is in Redux
-                onChange={handleInputChange} // Updates Redux when typing
+                value={currentSearch} 
+                onChange={handleInputChange} 
+                maxLength={10}
             />
 
         </div>

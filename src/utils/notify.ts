@@ -16,7 +16,7 @@ class Notify {
     }
 
     public error(err: any): void {
-        this.settings.message = errorExtractor.getMessage(err); // ERROR EXTRACTOR WORKS HERE
+        this.settings.message = errorExtractor.getMessage(err); 
         iziToast.error(this.settings);
     }
 

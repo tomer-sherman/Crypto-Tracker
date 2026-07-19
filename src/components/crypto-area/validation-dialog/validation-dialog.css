@@ -1,3 +1,155 @@
+/* validation-dialog.css */
+
+/* --- THE FULL-SCREEN SHIELD --- */
+.validation-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    /* Darkens the background and blurs everything behind it */
+    background: rgba(10, 5, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    /* Forces this layer to be physically in front of ALL other components */
+    z-index: 9999;
+
+    /* Centers the actual modal box perfectly on the screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- THE MODAL BOX --- */
 .ValidationDialog {
-	
+    background: linear-gradient(135deg, rgba(30, 10, 50, 0.95), rgba(15, 5, 30, 0.98));
+    border: 2px solid #e085ff;
+    box-shadow: 0 0 40px rgba(191, 0, 255, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 900px;
+    width: 90%;
+    text-align: center;
+
+    /* High-tech pop-in animation */
+    animation: modal-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.ValidationDialog h1 {
+    color: #ff3366;
+    /* Red/Pink warning color */
+    margin-top: 0;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px rgba(255, 51, 102, 0.5);
+}
+
+.ValidationDialog p {
+    color: #f1e4fd;
+    font-size: 1.15rem;
+    margin: 5px 0;
+}
+
+/* --- THE CARDS LIST --- */
+.replace-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.replace-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- BUTTONS --- */
+.replace-btn {
+    background: rgba(191, 0, 255, 0.1);
+    border: 1px dashed #e085ff;
+    color: #e085ff;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.replace-btn:hover {
+    background: #e085ff;
+    color: #1e0a32;
+    box-shadow: 0 0 15px rgba(224, 133, 255, 0.6);
+}
+
+.back-btn {
+    background: transparent;
+    border: 1px solid #a0aabf;
+    color: #a0aabf;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    border-color: #ff3366;
+    color: #ff3366;
+    background: rgba(255, 51, 102, 0.05);
+}
+
+/* --- KEYFRAMES --- */
+@keyframes modal-pop {
+    0% {
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* --- CLOSING ANIMATIONS --- */
+
+/* Fades out the dark background shield */
+.validation-backdrop.closing {
+    animation: backdrop-fade-out 0.4s ease forwards;
+}
+
+/* Shrinks and drops the modal box */
+.validation-backdrop.closing .ValidationDialog {
+    animation: modal-pop-out 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes backdrop-fade-out {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes modal-pop-out {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
+    }
 }

@@ -5,57 +5,150 @@
     max-width: 1600px;
     margin: 0 auto 40px auto;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
 }
 
-/* The Tray Title */
-.CheckedCoinList h1 {
-    margin-top: 0;
-    margin-bottom: 24px;
-    font-size: 22px;
+/* --- THE DROPZONE --- */
+.coins-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+
+    /* SMALLER & FIXED HEIGHT: Guarantees it never gets taller */
+    height: 250px;
+
+    /* ADAPTIVE WIDTH: Starts small, grows automatically horizontally */
+    width: fit-content;
+    min-width: 1500px;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    background: linear-gradient(135deg, rgba(30, 10, 50, 0.6), rgba(15, 5, 30, 0.8));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 2px dashed rgba(176, 38, 255, 0.5);
+
+    transition: all 0.4s ease-in-out;
+    animation: purple-pulse 2s infinite alternate;
+}
+
+/* --- THE CARDS WRAPPER --- */
+.cards-inner-layout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-grow: 1;
+    width: 100%;
+    /* Ensures it spans the full dropzone width */
+}
+
+/* --- THE EXPANSION ANIMATION --- */
+/* Excludes the empty state text so it doesn't get squished into a 200px box */
+.cards-inner-layout> :not(.empty-state-wrapper) {
+    animation: slide-expand 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slide-expand {
+    0% {
+        opacity: 0;
+        max-width: 0px;
+        transform: scale(0.4);
+        margin: 0;
+    }
+
+    100% {
+        opacity: 1;
+        max-width: 200px;
+        transform: scale(1);
+    }
+}
+
+/* --- TYPOGRAPHY --- */
+.coins-dropzone h1 {
+    margin: 0;
+    font-size: 20px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: #e085ff;
     text-transform: uppercase;
     text-shadow: 0 0 12px rgba(191, 0, 255, 0.7);
     text-align: center;
 }
 
-/* The Container holding the 5 mini-cards */
-.checked-cards-wrapper {
+/* Centers the 3 sentences and ensures they use the full width */
+/* --- EMPTY STATE TYPOGRAPHY --- */
+
+.empty-state-wrapper {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
+    flex-direction: column;
+    /* Aligns all the sentences to the left edge of this invisible wrapper */
+    align-items: flex-start;
+    gap: 16px;
+
+    /* Shrinks the wrapper to exactly the size of your longest sentence */
+    width: fit-content;
+
+    /* Centers the entire block horizontally inside the dropzone */
+    margin: 0 auto;
 }
 
-/* The individual mini-cards (Purple Theme) */
-.placeholder-mini-card {
-    width: 180px;
-    height: 60px;
-    border-radius: 10px;
-    background: linear-gradient(145deg, #0d111d 0%, #06080e 100%);
-    border: 1px solid rgba(191, 0, 255, 0.5);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+.empty-text {
+    /* Reverting to your original clean, light purple text */
+    color: #d8b4fe;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    margin: 0;
+    opacity: 0.85;
+
+    /* Forces the text itself to read left-to-right from the line you drew */
+    text-align: left;
+    max-width: 900px;
+
+    /* Removing the dashboard backgrounds */
+    background: none;
+    padding: 0;
+    border: none;
+    box-shadow: none;
 }
 
-/* The 5-Coin Limit Warning Message */
 .limit-warning {
-    margin: 20px 0 0 0;
-    padding: 10px 18px;
-    font-size: 14px;
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.5px;
     text-align: center;
+    white-space: nowrap;
 
     color: #a0aabf;
     background: rgba(191, 0, 255, 0.05);
     border: 1px dashed rgba(191, 0, 255, 0.3);
     border-radius: 8px;
-
     animation: warningPulse 2s ease-in-out infinite alternate;
+}
+
+/* --- CONTINUOUS GLOW ANIMATIONS --- */
+@keyframes purple-pulse {
+    0% {
+        box-shadow: inset 0 0 10px rgba(176, 38, 255, 0.1),
+            0 0 5px rgba(176, 38, 255, 0.1);
+        border-color: rgba(176, 38, 255, 0.4);
+    }
+
+    100% {
+        box-shadow: inset 0 0 20px rgba(176, 38, 255, 0.3),
+            0 0 15px rgba(176, 38, 255, 0.4);
+        border-color: rgba(176, 38, 255, 1);
+        text-shadow: 0 0 8px rgba(176, 38, 255, 0.5);
+    }
 }
 
 @keyframes warningPulse {
@@ -68,14 +161,4 @@
         box-shadow: 0 0 12px rgba(191, 0, 255, 0.3);
         border-color: rgba(191, 0, 255, 0.5);
     }
-}
-
-/* The Subtle Divider Line */
-.theme-divider {
-    width: 45%;
-    height: 2px;
-    
-    margin-top: 15px;
-    background: linear-gradient(90deg, transparent 0%, #bf00ff 50%, transparent 100%);
-    box-shadow: 0 0 12px rgba(178, 173, 180, 0.6);
 }

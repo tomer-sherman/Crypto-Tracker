@@ -24,7 +24,7 @@
 
 /* Header acts as an 80vh Hero Section */
 .Layout header {
-    height: 98vh;
+    height: 100vh;
     flex-shrink: 0;
     border-bottom: 1px solid rgba(188, 19, 254, 0.5);
     z-index: 10;

@@ -2,7 +2,6 @@
 
 .CryptoList {
     width: 100%;
-    /* Increased from 1200px to 1600px to allow space for 5 cards per row */
     max-width: 1600px;
     margin: 0 auto;
     padding: 20px;
@@ -10,10 +9,63 @@
     padding-bottom: 120px;
 }
 
+/* --- ANIMATION WRAPPER --- */
+/* This prevents a horizontal scrollbar from flashing on the screen when the grid slides in from the edges */
+.cards-grid-wrapper {
+    width: 100%;
+    overflow: hidden;
+    padding: 10px;
+    /* Gives a little buffer so card drop-shadows don't get clipped */
+}
+
+/* --- THE GRID --- */
 .cards-grid {
     display: grid;
-    /* Forces exactly 5 columns, each taking up an equal fraction of the space */
     grid-template-columns: repeat(5, 1fr);
     gap: 24px;
+
     justify-items: center;
+    /* Centers the cards horizontally */
+
+    /* ADD THIS LINE: Anchors cards to the top and stops them from stretching */
+    align-items: start;
+
+    /* Hardware acceleration for smoother animations */
+    will-change: transform, opacity;
+}
+
+/* --- SWIPE ANIMATION CLASSES --- */
+.slide-forward {
+    animation: swipe-left 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.slide-backward {
+    animation: swipe-right 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* --- KEYFRAMES --- */
+/* Triggers when going to a NEXT page (enters from the right) */
+@keyframes swipe-left {
+    0% {
+        opacity: 0;
+        transform: translateX(150px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Triggers when going to a PREVIOUS page (enters from the left) */
+@keyframes swipe-right {
+    0% {
+        opacity: 0;
+        transform: translateX(-150px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }

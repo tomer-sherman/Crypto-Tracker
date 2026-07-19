@@ -7,7 +7,6 @@ import { CoinInfoModel } from "../../../models/coin-info-model";
 import { useSelector } from "react-redux";
 import { AppState } from "../../../redux/app-state";
 
-
 export type CoinProp = {
     coin: CoinModel;
 }
@@ -16,11 +15,10 @@ export function CryptoCard(props: CoinProp) {
 
     const [coinInfo, setCoinInfo] = useState<CoinInfoModel>();
     const [flag, setFlag] = useState<boolean>(false);
-    const [selectFlag, setSelectFlag] = useState<boolean>(false);
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
-    const isSelected = selectedCoins.some(c =>c.id === props.coin.id);
 
 
+    const isSelected = selectedCoins.some(c => c.id === props.coin.id);
 
     async function triggerInfo() {
         const isOpening = !flag;
@@ -33,40 +31,54 @@ export function CryptoCard(props: CoinProp) {
         }
     }
 
-    async function triggerSelect(coinId: string, coin: CoinModel) {
-        // Setting true or false
-        const isChecked = !selectFlag;
-        setSelectFlag(isChecked);
-
-        // Calling service depending on flag
-        coinId = props.coin.id;
-        if (isChecked) coinService.selectOneCoin(coin);
-        if (!isChecked) coinService.unSelectOnceCoin(coinId);
+    async function triggerSelect() {
+        isSelected ?
+            coinService.unSelectOnceCoin(props.coin.id)
+            : coinService.selectOneCoin(props.coin);
     }
-
 
     return (
         <div className="CryptoCard">
             <img src={props.coin.image} alt={props.coin.name} />
             <span>{props.coin.symbol.toUpperCase()}</span>
             <span>{props.coin.name}</span>
-            <input type="checkbox" checked={isSelected}  onChange={() => triggerSelect(props.coin.id, props.coin)} />
+
+            <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={triggerSelect}
+            />
+
             <button onClick={triggerInfo}>
                 {flag ? "Close" : "More Info"}
             </button>
 
-            {flag && coinInfo && (
-                <div>
-                    <span>Dollar: {coinInfo.market_data.current_price.usd}</span><br />
-                    <span>Euro: {coinInfo.market_data.current_price.eur}</span><br />
-                    <span>Shekels: {coinInfo.market_data.current_price.ils}</span>
+            {/* NEW DESIGNED INFO PANEL WITH SMOOTH RESIZE WRAPPER */}
+            <div className={`coin-info-wrapper ${flag && coinInfo ? "open" : ""}`}>
+                <div className="coin-info-panel">
+                    <div className="coin-info-content">
+                        {coinInfo && (
+                            <>
+                                <div className="price-row">
+                                    <span className="currency">$</span>
+                                    <span className="value">{coinInfo.market_data.current_price.usd.toLocaleString()}</span>
+                                </div>
+                                <div className="price-row">
+                                    <span className="currency">€</span>
+                                    <span className="value">{coinInfo.market_data.current_price.eur.toLocaleString()}</span>
+                                </div>
+                                <div className="price-row">
+                                    <span className="currency">₪</span>
+                                    <span className="value">{coinInfo.market_data.current_price.ils.toLocaleString()}</span>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
-            )}
-
-
+            </div>
 
             {/* Optional loading state while waiting for the API */}
-            {flag && !coinInfo && <span>Loading...</span>}
+            {flag && !coinInfo && <span className="loading-text">Loading...</span>}
         </div>
     );
 }
