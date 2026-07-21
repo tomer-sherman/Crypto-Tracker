@@ -3,7 +3,7 @@ import { appConfig } from "../utils/app-config";
 
 class GptService {
 	
-public async getCompletion(systemPrompt: string, userPrompt: string): Promise<void>{
+public async getCompletion(systemPrompt: string, userPrompt: string): Promise<string>{
     const body = {
         model: appConfig.openaiModel,
         messages: [

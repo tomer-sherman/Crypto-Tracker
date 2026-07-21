@@ -76,7 +76,7 @@ export function CryptoCard(props: CoinProp) {
             </div>
 
             {/* Optional loading state while waiting for the API */}
-            {flag && !coinInfo && <span className="loading-text">Loading...</span>}
+            {flag && !coinInfo && <span className="loading-text">Fetching data...</span>}
         </div>
     );
 }

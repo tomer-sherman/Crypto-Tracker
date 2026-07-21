@@ -1,0 +1,65 @@
+/* ai-insight-list.css */
+
+.AiInsightList {
+    /* Responsive Grid Layout */
+    display: grid;
+    /* This automatically adds columns based on screen size. 
+       Cards won't shrink below 350px, but will fill available space. */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 32px;
+
+    padding: 40px 20px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    /* Adds a very subtle, ambient cyan glow behind the entire list area */
+    background: radial-gradient(circle at 50% -20%, rgba(0, 242, 254, 0.03) 0%, transparent 70%);
+}
+
+/* -------------------------------------
+   Cascading Entrance Animation
+-------------------------------------- */
+/* Selects all direct children (the AiInsightCards) of the list */
+.AiInsightList>* {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUpIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger the animations so they load one after another like a sequence */
+.AiInsightList>*:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.AiInsightList>*:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.AiInsightList>*:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.AiInsightList>*:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.AiInsightList>*:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.AiInsightList>*:nth-child(n+6) {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeUpIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

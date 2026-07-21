@@ -7,6 +7,7 @@ import { selectedCoinsSlice } from "../redux/selected-coins-slice";
 import { CoinInfoModel } from "../models/coin-info-model";
 import { notify } from "../utils/notify";
 import { CoinCurrencyGraphModel } from "../models/coin-currency-graph-model";
+import { promptService } from "./prompt-service";
 
 class CoinService {
 
@@ -42,13 +43,16 @@ class CoinService {
     }
 
    
-    
+    // The graph that is called every one second
     public async getCoinGraph(coinSymbols: string){
         const response = await axios.get<CoinCurrencyGraphModel>(appConfig.selectedCoinsValueUrl + coinSymbols);
         const graphs = response.data
 
         return graphs
     }
+
+
+  
 
 
 
