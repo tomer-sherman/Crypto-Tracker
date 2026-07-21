@@ -1,15 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "../../../redux/app-state";
-import { CoinModel } from "../../../models/coin-model";
-import { coinService } from "../../../services/coin-service";
-import { notify } from "../../../utils/notify";
-import { filterCoinsBySearch } from "../../../utils/filter-coins";
+import { AppState } from "../../../../redux/app-state";
+import { CoinModel } from "../../../../models/coin-model";
+import { coinService } from "../../../../services/coin-service";
+import { notify } from "../../../../utils/notify";
+import { filterCoinsBySearch } from "../../../../utils/filter-coins";
 import { CryptoCard } from "../crypto-card/crypto-card";
-import { CryptoCardSkeleton } from "../../shared-area/crypto-card-skeleton/crypto-card-skeleton";
-import { PaginationMenu } from "../../shared-area/pagination-menu/pagination-menu";
+import { CryptoCardSkeleton } from "../../../shared-area/crypto-card-skeleton/crypto-card-skeleton";
+import { PaginationMenu } from "../../../shared-area/pagination-menu/pagination-menu";
 import "./crypto-list.css";
-import { paginateCoins } from "../../../utils/pagination-page-math";
+import { paginateCoins } from "../../../../utils/pagination-page-math";
 
 export function CryptoList() {
     const [coins, setCoins] = useState<CoinModel[]>([]);

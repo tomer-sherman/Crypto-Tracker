@@ -1,4 +1,4 @@
-import { CoinModel } from "../../../models/coin-model";
+import { CoinModel } from "../../../../models/coin-model";
 import "./selected-coin-card.css";
 
 export type CoinProp = {

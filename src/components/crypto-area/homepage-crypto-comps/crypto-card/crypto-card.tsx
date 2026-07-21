@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { CoinModel } from "../../../models/coin-model";
+import { CoinModel } from "../../../../models/coin-model";
 import "./crypto-card.css";
-import { coinService } from "../../../services/coin-service";
-import { notify } from "../../../utils/notify";
-import { CoinInfoModel } from "../../../models/coin-info-model";
+import { coinService } from "../../../../services/coin-service";
+import { notify } from "../../../../utils/notify";
+import { CoinInfoModel } from "../../../../models/coin-info-model";
 import { useSelector } from "react-redux";
-import { AppState } from "../../../redux/app-state";
+import { AppState } from "../../../../redux/app-state";
 
 export type CoinProp = {
     coin: CoinModel;
@@ -16,8 +16,6 @@ export function CryptoCard(props: CoinProp) {
     const [coinInfo, setCoinInfo] = useState<CoinInfoModel>();
     const [flag, setFlag] = useState<boolean>(false);
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
-
-
     const isSelected = selectedCoins.some(c => c.id === props.coin.id);
 
     async function triggerInfo() {

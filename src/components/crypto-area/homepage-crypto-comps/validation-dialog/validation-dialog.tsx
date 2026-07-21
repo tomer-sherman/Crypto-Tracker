@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import "./validation-dialog.css";
-import { AppState } from "../../../redux/app-state";
-import { CoinModel } from "../../../models/coin-model";
+import { AppState } from "../../../../redux/app-state";
+import { CoinModel } from "../../../../models/coin-model";
 import { SelectedCoinCard } from "../selected-coin-card/selected-coin-card";
-import { coinService } from "../../../services/coin-service";
+import { coinService } from "../../../../services/coin-service";
 
 export function ValidationDialog() {
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);

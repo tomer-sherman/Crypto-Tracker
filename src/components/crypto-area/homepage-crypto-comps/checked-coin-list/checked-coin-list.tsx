@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import "./checked-coin-list.css";
-import { AppState } from "../../../redux/app-state";
-import { CoinModel } from "../../../models/coin-model";
+import { AppState } from "../../../../redux/app-state";
+import { CoinModel } from "../../../../models/coin-model";
 import { SelectedCoinCard } from "../selected-coin-card/selected-coin-card";
 
 export function CheckedCoinList() {

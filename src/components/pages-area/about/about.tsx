@@ -4,7 +4,9 @@ export function About() {
     return (
         <div className="About">
 
-			<p>About Component</p>
+			<h1>About me</h1>
+            <p>My name is Tomer sherman</p>
+            
 
         </div>
     );

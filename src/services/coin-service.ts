@@ -6,6 +6,7 @@ import { hundredCoinsSlice } from "../redux/hundred-coin-slice";
 import { selectedCoinsSlice } from "../redux/selected-coins-slice";
 import { CoinInfoModel } from "../models/coin-info-model";
 import { notify } from "../utils/notify";
+import { CoinCurrencyGraphModel } from "../models/coin-currency-graph-model";
 
 class CoinService {
 
@@ -40,7 +41,14 @@ class CoinService {
         return coinInfo;
     }
 
+   
+    
+    public async getCoinGraph(coinSymbols: string){
+        const response = await axios.get<CoinCurrencyGraphModel>(appConfig.selectedCoinsValueUrl + coinSymbols);
+        const graphs = response.data
 
+        return graphs
+    }
 
 
 
