@@ -1,8 +1,5 @@
 import "./about.css";
-
-// Once the picture is dropped into src/assets, uncomment this import
-// (and the <img> below) and point it at the real file name.
-// import profilePic from "../../../assets/tomer.jpg";
+import profilePic from "../../../assets/me.jpeg";
 
 export function About() {
     return (
@@ -84,10 +81,8 @@ export function About() {
 
             <div className="profile-card">
 
-                {/* Picture slot -- swap the placeholder for the <img> once the file exists */}
                 <div className="profile-photo">
-                    {/* <img src={profilePic} alt="Tomer Sherman" /> */}
-                    <span className="photo-placeholder">PHOTO</span>
+                    <img src={profilePic} alt="Tomer Sherman" />
                 </div>
 
                 <h3 className="profile-name">Tomer Sherman</h3>
