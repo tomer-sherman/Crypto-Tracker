@@ -1,3 +1,80 @@
+/* ============================================================================
+   reports.css — the live reports page
+
+   Scoped to .Reports. The page itself is only a wrapper: CryptoGraphList
+   supplies the heading, the copy and the charts.
+
+   The single <p> here is a leftover line of placeholder text sitting above that
+   heading. Rather than leave it as loose body copy in the middle of the layout,
+   it is dressed as a small status eyebrow, which is a shape the page already
+   has a use for.
+   ============================================================================ */
+
 .Reports {
-	
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.Reports>p {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 6px;
+    padding: 6px 16px 6px 12px;
+    border-radius: var(--ct-r-pill);
+
+    background: rgba(13, 19, 33, 0.55);
+    border: 1px solid var(--ct-line);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    font-family: var(--ct-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ct-faint);
+
+    animation: ct-reports-eyebrow-in 0.5s var(--ct-ease) backwards;
+}
+
+/* Live indicator dot */
+.Reports>p::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--ct-up);
+    box-shadow: 0 0 10px var(--ct-up);
+    animation: ct-reports-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ct-reports-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.35;
+        transform: scale(0.72);
+    }
+}
+
+@keyframes ct-reports-eyebrow-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

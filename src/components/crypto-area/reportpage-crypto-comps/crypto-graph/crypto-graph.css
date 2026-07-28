@@ -1,33 +1,32 @@
-/* crypto-graph.css
-   Every selector starts at .CryptoGraph, so nothing here escapes the card. */
+/* ============================================================================
+   crypto-graph.css — one coin's live candlestick card
+
+   Every selector starts at .CryptoGraph, so nothing here escapes the card.
+   ============================================================================ */
 
 .CryptoGraph {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
     padding: 24px;
+    border-radius: var(--ct-r-lg);
     overflow: hidden;
 
-    /* Same glassmorphism language as the coin cards */
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: linear-gradient(160deg, rgba(20, 28, 48, 0.72), rgba(8, 12, 22, 0.88));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
 
-    border: 1px solid rgba(0, 242, 254, 0.25);
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45),
-        inset 0 0 20px rgba(0, 242, 254, 0.04);
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+    transition: border-color var(--ct-base) ease, box-shadow var(--ct-base) ease;
 
-    color: #e2e8f0;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-
-    opacity: 0;
-    animation: graphCardRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: ct-graph-rise 0.6s var(--ct-ease) backwards;
 }
 
-@keyframes graphCardRise {
+@keyframes ct-graph-rise {
     from {
         opacity: 0;
         transform: translateY(24px);
@@ -39,116 +38,143 @@
     }
 }
 
-/* Accent line across the top of the card */
+/* Accent across the top */
 .CryptoGraph::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #00f2fe, #4facfe, #f093fb, #f5576c);
-    opacity: 0.8;
+    height: 2px;
+    pointer-events: none;
+
+    background: var(--ct-grad-full);
+    background-size: 200% auto;
+    opacity: 0.85;
+    animation: ct-graph-accent 5s linear infinite;
+}
+
+@keyframes ct-graph-accent {
+    to {
+        background-position: 200% center;
+    }
 }
 
 .CryptoGraph:hover {
-    border-color: rgba(0, 242, 254, 0.6);
-    box-shadow: 0 12px 40px rgba(0, 242, 254, 0.18),
-        inset 0 0 20px rgba(0, 242, 254, 0.06);
+    border-color: var(--ct-line-cyan);
+    box-shadow: var(--ct-shadow-lg), var(--ct-glow-cyan);
 }
 
-/* -------------------------------------
-   Header: Coin Card + Live Readout
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Header: coin chip + live readout
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-header {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 22px;
     flex-wrap: wrap;
 }
 
-/* The shared coin card is reused as is, only shrunk to fit this header.
-   Scoped under .CryptoGraph so the home page copy is untouched. */
-.CryptoGraph .CryptoCard {
-    width: 118px;
-    padding: 16px;
-    gap: 8px;
+/* Chip sizing. Two ancestor classes puts this at (0,3,0), above the (0,2,0)
+   base in selected-coin-card.css, so import order cannot decide it. */
+.CryptoGraph .graph-header .CryptoCard {
+    width: 116px;
+    padding: 15px 12px;
+    gap: 7px;
     cursor: default;
 }
 
-.CryptoGraph .CryptoCard:hover {
+.CryptoGraph .graph-header .CryptoCard:hover {
     transform: none;
 }
 
-.CryptoGraph .CryptoCard img {
-    width: 44px;
-    height: 44px;
+.CryptoGraph .graph-header .CryptoCard img {
+    width: 42px;
+    height: 42px;
 }
 
+.CryptoGraph .graph-header .CryptoCard span:nth-of-type(1) {
+    font-size: 1rem;
+}
+
+/* ----------------------------------------------------------------------------
+   Readout
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-readout {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
+    min-width: 0;
 }
 
 .CryptoGraph .graph-label {
-    font-size: 0.72rem;
-    letter-spacing: 2px;
+    font-family: var(--ct-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #64748b;
+    color: var(--ct-faint);
 }
 
 .CryptoGraph .graph-price {
-    margin: 0;
-    font-size: 1.9rem;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-family: var(--ct-mono);
+    font-size: clamp(1.4rem, 3.2vw, 1.95rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+
+    /* Stops the whole readout from reflowing every time a digit changes */
     font-variant-numeric: tabular-nums;
-    transition: color 0.3s ease;
+
+    transition: color var(--ct-base) ease, text-shadow var(--ct-base) ease;
 }
 
 .CryptoGraph .graph-price.up {
-    color: #16c784;
-    text-shadow: 0 0 18px rgba(22, 199, 132, 0.35);
+    color: var(--ct-up);
+    text-shadow: 0 0 20px rgba(22, 199, 132, 0.4);
 }
 
 .CryptoGraph .graph-price.down {
-    color: #ea3943;
-    text-shadow: 0 0 18px rgba(234, 57, 67, 0.35);
+    color: var(--ct-down);
+    text-shadow: 0 0 20px rgba(234, 57, 67, 0.4);
 }
 
 /* Session change pill */
 .CryptoGraph .graph-change {
     align-self: flex-start;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 0.85rem;
+    padding: 3px 11px;
+    border-radius: var(--ct-r-pill);
+
+    font-family: var(--ct-mono);
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
 }
 
 .CryptoGraph .graph-change.up {
-    color: #16c784;
-    background: rgba(22, 199, 132, 0.12);
+    color: var(--ct-up);
+    background: rgba(22, 199, 132, 0.11);
     border: 1px solid rgba(22, 199, 132, 0.35);
 }
 
 .CryptoGraph .graph-change.down {
-    color: #ea3943;
-    background: rgba(234, 57, 67, 0.12);
+    color: var(--ct-down);
+    background: rgba(234, 57, 67, 0.11);
     border: 1px solid rgba(234, 57, 67, 0.35);
 }
 
-/* -------------------------------------
-   Chart Surface
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Chart surface
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-chart {
     position: relative;
-    padding: 12px 8px 4px 8px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, rgba(2, 6, 23, 0.75), rgba(15, 23, 42, 0.45));
-    border: 1px solid rgba(148, 163, 184, 0.12);
+    padding: 12px 8px 4px;
+    border-radius: var(--ct-r-md);
+
+    background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 229, 255, 0.05), transparent 70%),
+        linear-gradient(180deg, rgba(2, 5, 12, 0.8), rgba(13, 19, 33, 0.5));
+    border: 1px solid var(--ct-line-soft);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .CryptoGraph .graph-svg {
@@ -158,20 +184,23 @@
     overflow: visible;
 }
 
-/* Waiting message before the first tick lands */
+/* Before the first tick lands */
 .CryptoGraph .graph-waiting {
-    margin: 0;
     padding: 48px 12px;
     text-align: center;
-    color: #64748b;
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-    animation: graphWaitingBlink 1.6s infinite alternate ease-in-out;
+
+    font-family: var(--ct-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ct-faint);
+
+    animation: ct-graph-waiting 1.6s ease-in-out infinite alternate;
 }
 
-@keyframes graphWaitingBlink {
+@keyframes ct-graph-waiting {
     from {
-        opacity: 0.4;
+        opacity: 0.35;
     }
 
     to {
@@ -179,64 +208,65 @@
     }
 }
 
-/* -------------------------------------
-   Axes And Grid
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Axes and grid
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-grid-line {
-    stroke: rgba(148, 163, 184, 0.14);
+    stroke: rgba(148, 163, 184, 0.12);
     stroke-width: 1;
+    stroke-dasharray: 2 5;
 }
 
 .CryptoGraph .graph-axis-text {
-    fill: #64748b;
-    font-size: 11px;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    fill: var(--ct-faint);
+    font-family: var(--ct-mono);
+    font-size: 10px;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03em;
 }
 
-/* -------------------------------------
+/* ----------------------------------------------------------------------------
    Candles
--------------------------------------- */
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-candle .graph-wick {
     stroke-width: 1.5;
 }
 
 .CryptoGraph .graph-candle .graph-body {
-    rx: 1;
-    transition: filter 0.2s ease;
+    rx: 1.5;
+    transition: filter var(--ct-quick) ease;
 }
 
 .CryptoGraph .graph-candle.up .graph-wick {
-    stroke: #16c784;
+    stroke: var(--ct-up);
 }
 
 .CryptoGraph .graph-candle.up .graph-body {
-    fill: #16c784;
-    filter: drop-shadow(0 0 5px rgba(22, 199, 132, 0.35));
+    fill: var(--ct-up);
+    filter: drop-shadow(0 0 5px rgba(22, 199, 132, 0.4));
 }
 
 .CryptoGraph .graph-candle.down .graph-wick {
-    stroke: #ea3943;
+    stroke: var(--ct-down);
 }
 
 .CryptoGraph .graph-candle.down .graph-body {
-    fill: #ea3943;
-    filter: drop-shadow(0 0 5px rgba(234, 57, 67, 0.35));
+    fill: var(--ct-down);
+    filter: drop-shadow(0 0 5px rgba(234, 57, 67, 0.4));
 }
 
 .CryptoGraph .graph-candle:hover .graph-body {
-    filter: brightness(1.35) drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
+    filter: brightness(1.4) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
 }
 
-/* Newest candle keeps breathing, so the chart reads as live */
+/* The newest candle keeps breathing, so the chart reads as live */
 .CryptoGraph .graph-candle.latest .graph-body {
-    animation: graphCandlePulse 1.6s infinite alternate ease-in-out;
+    animation: ct-graph-latest 1.6s ease-in-out infinite alternate;
 }
 
-@keyframes graphCandlePulse {
+@keyframes ct-graph-latest {
     from {
-        opacity: 0.75;
+        opacity: 0.7;
     }
 
     to {
@@ -244,38 +274,40 @@
     }
 }
 
-/* -------------------------------------
-   Live Price Marker
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Live price marker
+   ---------------------------------------------------------------------------- */
 .CryptoGraph .graph-live-line {
-    stroke-dasharray: 4 6;
+    stroke-dasharray: 3 6;
     stroke-width: 1;
-    opacity: 0.55;
+    opacity: 0.5;
 }
 
 .CryptoGraph .graph-live.up .graph-live-line {
-    stroke: #16c784;
+    stroke: var(--ct-up);
 }
 
 .CryptoGraph .graph-live.down .graph-live-line {
-    stroke: #ea3943;
+    stroke: var(--ct-down);
 }
 
 .CryptoGraph .graph-live.up .graph-live-dot {
-    fill: #16c784;
-    filter: drop-shadow(0 0 8px rgba(22, 199, 132, 0.8));
+    fill: var(--ct-up);
+    filter: drop-shadow(0 0 9px rgba(22, 199, 132, 0.9));
 }
 
 .CryptoGraph .graph-live.down .graph-live-dot {
-    fill: #ea3943;
-    filter: drop-shadow(0 0 8px rgba(234, 57, 67, 0.8));
+    fill: var(--ct-down);
+    filter: drop-shadow(0 0 9px rgba(234, 57, 67, 0.9));
 }
 
+/* `r` is animated as a CSS geometry property, which is why the dot can pulse
+   without the component re-rendering it. */
 .CryptoGraph .graph-live-dot {
-    animation: graphDotPulse 1.4s infinite ease-in-out;
+    animation: ct-graph-dot 1.5s ease-in-out infinite;
 }
 
-@keyframes graphDotPulse {
+@keyframes ct-graph-dot {
 
     0%,
     100% {
@@ -284,30 +316,31 @@
     }
 
     50% {
-        r: 6;
-        opacity: 0.65;
+        r: 6.5;
+        opacity: 0.6;
     }
 }
 
-/* -------------------------------------
-   Small Screens
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
 @media (max-width: 700px) {
     .CryptoGraph {
         padding: 18px 14px;
-        gap: 16px;
+        gap: 14px;
     }
 
     .CryptoGraph .graph-header {
-        gap: 16px;
+        gap: 14px;
     }
 
-    .CryptoGraph .graph-price {
-        font-size: 1.45rem;
-    }
-
-    .CryptoGraph .CryptoCard {
+    .CryptoGraph .graph-header .CryptoCard {
         width: 96px;
-        padding: 12px;
+        padding: 12px 10px;
+    }
+
+    .CryptoGraph .graph-header .CryptoCard img {
+        width: 36px;
+        height: 36px;
     }
 }

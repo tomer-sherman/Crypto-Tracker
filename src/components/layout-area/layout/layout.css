@@ -1,152 +1,283 @@
-/* Scope absolutely everything inside .Layout to prevent leaking */
+/* ============================================================================
+   layout.css — the application shell
+
+   .Layout is the scroll container. The onScroll handler in layout.tsx reads
+   scrollTop off this element, so it must keep a fixed height and its own
+   overflow. Everything below is scoped to .Layout.
+   ============================================================================ */
+
 .Layout {
     display: flex;
     flex-direction: column;
-    height: 100vh; /* KEEPS YOUR REACT SCROLL LISTENER ALIVE */
-    
-    width: 100%; /* FIX 1: Changed from 100vw to prevent scrollbar overlap */
+    height: 100vh;
+    /* keeps the React scroll listener alive */
+    width: 100%;
 
-    background: linear-gradient(135deg, #07090e 0%, #111622 100%);
-    color: #e2e8f0;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ct-text);
+    font-family: var(--ct-font);
 
     overflow-y: auto;
     overflow-x: hidden;
 
-    animation: terminalBoot 0.8s ease-out forwards;
-}
+    /* Smooths the jump when the nav bar appears */
+    scroll-behavior: smooth;
 
-/* Takes the nav wrapper out of the document flow so it doesn't push the header down */
-.Layout nav {
-    position: absolute;
-    z-index: 1000;
-}
-
-/* Header acts as an 80vh Hero Section */
-.Layout header {
-    height: 100vh;
-    flex-shrink: 0;
-    border-bottom: 1px solid rgba(188, 19, 254, 0.5);
-    z-index: 10;
-}
-
-/* Main dashboard area pushes down naturally */
-/* Main dashboard area pushes down naturally */
-.Layout main {
-    flex-grow: 1;
-    
-    flex-shrink: 0; /* FIX 2: Forces main to stretch completely around your cards */
-    
-    position: relative;
-    
-    /* FIX 3: 100px bottom padding ensures cards NEVER touch the footer */
-    padding: 2rem 2rem 100px 2rem; 
-    
-    min-height: 100vh;
-    box-shadow: inset 0 0 80px rgba(0, 243, 255, 0.02);
-}
-
-.Layout main::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    /* Layered floor: two soft aurora blooms over a deep vertical fade.
+       Fixed attachment so the blooms stay put while content scrolls past. */
+    background-color: var(--ct-abyss);
     background-image:
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: -1;
-    pointer-events: none;
-    animation: pulseGrid 4s infinite alternate ease-in-out;
+        radial-gradient(ellipse 70% 50% at 12% 0%, rgba(0, 229, 255, 0.10), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 88% 30%, rgba(176, 38, 255, 0.10), transparent 60%),
+        linear-gradient(180deg, #070a12 0%, #0a0e1a 45%, #06080f 100%);
+    background-attachment: fixed;
+
+    animation: ct-layout-boot 0.7s var(--ct-ease) both;
 }
 
-.Layout footer {
-    height: 60px;
-    flex-shrink: 0;
-    background: #07090e;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.3);
-}
-
-/* Scrollbars */
-.Layout::-webkit-scrollbar {
-    width: 8px;
-}
-
-.Layout::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.Layout::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00f3ff, #bc13fe);
-    border-radius: 10px;
-}
-
-/* --- Animations --- */
-@keyframes terminalBoot {
-    0% {
+@keyframes ct-layout-boot {
+    from {
         opacity: 0;
     }
 
-    100% {
+    to {
         opacity: 1;
     }
 }
 
-@keyframes pulseGrid {
-    0% {
-        opacity: 0.2;
+/* ----------------------------------------------------------------------------
+   Hero slot
+
+   The Header component paints itself; this only reserves the viewport and
+   dissolves the bottom edge into the dashboard instead of cutting it with a
+   hard border.
+   ---------------------------------------------------------------------------- */
+.Layout>header {
+    position: relative;
+    height: 100vh;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+/* Gradient hairline seam, brightest in the middle and faded at both ends */
+.Layout>header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-line-cyan) 25%,
+            rgba(176, 38, 255, 0.55) 50%,
+            var(--ct-line-cyan) 75%,
+            transparent);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Dashboard area
+   ---------------------------------------------------------------------------- */
+.Layout>main {
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-height: 100vh;
+
+    /* Single source of page padding. Pages inside only set their own max-width,
+       which is why the old stacked 100px + 120px bottom gap is gone. */
+    padding: clamp(28px, 4vw, 60px) clamp(16px, 3vw, 40px) clamp(64px, 8vw, 110px);
+
+    /* Glow bleeding up out of the hero seam */
+    background:
+        radial-gradient(ellipse 60% 260px at 50% 0%, rgba(0, 229, 255, 0.07), transparent 70%);
+}
+
+/* Technical grid, drawn behind the page content */
+.Layout>main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+
+    /* Fades out top and bottom so the grid never meets an edge */
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+
+    animation: ct-layout-grid 9s ease-in-out infinite alternate;
+}
+
+@keyframes ct-layout-grid {
+    from {
+        opacity: 0.35;
     }
 
-    100% {
-        opacity: 0.7;
+    to {
+        opacity: 0.85;
     }
 }
 
-@keyframes panOnScroll {
-    0% {
-        background-position: 0% center;
+/* ----------------------------------------------------------------------------
+   Routing host
+
+   Routing renders an unclassed wrapper around the matched page. Lifting it
+   above the grid and fading it in gives every route the same entrance.
+
+   Opacity only, deliberately: the ValidationDialog is position: fixed and lives
+   inside this subtree, and any lingering transform here would turn its parent
+   into a containing block and break the modal's full-screen backdrop.
+   ---------------------------------------------------------------------------- */
+.Layout .Routing {
+    position: relative;
+    z-index: 1;
+}
+
+.Layout .Routing>* {
+    animation: ct-layout-route-in 0.45s var(--ct-ease) backwards;
+}
+
+@keyframes ct-layout-route-in {
+    from {
+        opacity: 0;
     }
 
-    100% {
-        background-position: 100% center;
+    to {
+        opacity: 1;
     }
 }
 
+/* ----------------------------------------------------------------------------
+   Footer
+   ---------------------------------------------------------------------------- */
+.Layout>footer {
+    position: relative;
+    height: 64px;
+    flex-shrink: 0;
+    z-index: 2;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-/* --- High-Tech Scroll-Triggered Top Navigation Bar --- */
+    background: linear-gradient(180deg, rgba(4, 6, 11, 0.7), var(--ct-void));
+    border-top: 1px solid var(--ct-line-soft);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
 
-.floating-nav {
+/* ----------------------------------------------------------------------------
+   Scroll-triggered top navigation
+
+   .floating-nav on its own scores lower than the old `.Layout nav` rule, so the
+   bar was resolving to position: absolute and only behaved like a fixed bar by
+   accident. Both states are written at the same specificity here so the result
+   no longer depends on rule order.
+   ---------------------------------------------------------------------------- */
+.Layout nav.floating-nav {
     position: fixed;
     top: 0;
-    /* Snaps exactly to the top of the monitor */
     left: 0;
     width: 100%;
-    /* Stretches across the entire screen */
     z-index: 1000;
 
-    /* Initial Hidden State */
+    /* Hidden state: lifted out of view, slightly scaled back and blurred so it
+       resolves into place rather than simply sliding. */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    transform: translateY(-102%);
+    filter: blur(6px);
 
-    /* Slides up out of view when hidden */
-    transform: translateY(-100%);
-
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition:
+        transform var(--ct-slow) var(--ct-ease),
+        opacity var(--ct-base) ease,
+        filter var(--ct-base) ease,
+        visibility 0s linear var(--ct-slow);
 }
 
-/* The state triggered by scrolling */
-.floating-nav.active {
+.Layout nav.floating-nav.active {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
-    /* Slides down into place */
+    filter: blur(0);
+
+    transition:
+        transform var(--ct-slow) var(--ct-ease),
+        opacity var(--ct-base) ease,
+        filter var(--ct-base) ease,
+        visibility 0s;
+}
+
+/* ----------------------------------------------------------------------------
+   Scroll progress bar
+
+   Painted by the scroll position itself rather than by a listener. Browsers
+   without scroll-driven animations simply never show it.
+   ---------------------------------------------------------------------------- */
+@supports (animation-timeline: scroll()) {
+    .Layout::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 100%;
+        z-index: 1001;
+        pointer-events: none;
+
+        background: var(--ct-grad-full);
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.55);
+        transform-origin: 0 50%;
+
+        animation: ct-layout-progress linear;
+        animation-timeline: scroll(nearest block);
+    }
+
+    @keyframes ct-layout-progress {
+        from {
+            transform: scaleX(0);
+        }
+
+        to {
+            transform: scaleX(1);
+        }
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Scrollbar for the shell itself
+   ---------------------------------------------------------------------------- */
+.Layout::-webkit-scrollbar {
+    width: 10px;
+}
+
+.Layout::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.Layout::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--ct-cyan), var(--ct-violet));
+    border: 2px solid var(--ct-void);
+    border-radius: var(--ct-r-pill);
+}
+
+/* ----------------------------------------------------------------------------
+   Small screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .Layout>main {
+        padding: 24px 14px 72px;
+    }
+
+    .Layout>footer {
+        height: 76px;
+    }
 }

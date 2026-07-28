@@ -1,164 +1,285 @@
-/* checked-coin-list.css */
+/* ============================================================================
+   checked-coin-list.css — the tracked-coins dropzone
+
+   Scoped to .CheckedCoinList, which is also the anchor selected-coin-card.css
+   uses for the chips that land inside it.
+
+   Note the markup nests .empty-state-wrapper inside a second copy of itself.
+   Both are flex columns and only the inner one has multiple children, so the
+   outer simply centres the inner and the rules below work either way.
+   ============================================================================ */
 
 .CheckedCoinList {
     width: 100%;
     max-width: 1600px;
-    margin: 0 auto 40px auto;
+    margin: 0 auto 36px;
     display: flex;
     justify-content: center;
 }
 
-/* --- THE DROPZONE --- */
-.coins-dropzone {
+/* ----------------------------------------------------------------------------
+   The dropzone panel
+
+   Previously locked to min-width: 1500px and height: 250px. The first forced a
+   horizontal scrollbar on anything smaller than a wide desktop, and the second
+   was too short for the five-line welcome text it had to hold, so the copy was
+   being clipped. It is fluid with a minimum height now.
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .coins-dropzone {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 30px;
+    gap: 20px;
 
-    /* SMALLER & FIXED HEIGHT: Guarantees it never gets taller */
-    height: 250px;
+    width: 100%;
+    max-width: 1500px;
+    min-height: 236px;
+    padding: 26px 30px 22px;
 
-    /* ADAPTIVE WIDTH: Starts small, grows automatically horizontally */
-    width: fit-content;
-    min-width: 1500px;
-    max-width: 100%;
-    box-sizing: border-box;
+    background:
+        radial-gradient(ellipse 70% 100% at 50% 0%, rgba(176, 38, 255, 0.14), transparent 70%),
+        linear-gradient(160deg, rgba(28, 14, 48, 0.55), rgba(10, 7, 20, 0.75));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
 
-    background: linear-gradient(135deg, rgba(30, 10, 50, 0.6), rgba(15, 5, 30, 0.8));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 20px;
-    border: 2px dashed rgba(176, 38, 255, 0.5);
+    border: 1px dashed rgba(176, 38, 255, 0.45);
+    border-radius: var(--ct-r-lg);
 
-    transition: all 0.4s ease-in-out;
-    animation: purple-pulse 2s infinite alternate;
+    transition: border-color var(--ct-slow) ease, box-shadow var(--ct-slow) ease;
+    animation: ct-drop-breathe 3.4s ease-in-out infinite alternate;
 }
 
-/* --- THE CARDS WRAPPER --- */
-.cards-inner-layout {
+@keyframes ct-drop-breathe {
+    from {
+        border-color: rgba(176, 38, 255, 0.28);
+        box-shadow:
+            inset 0 0 30px rgba(176, 38, 255, 0.05),
+            0 0 0 rgba(176, 38, 255, 0);
+    }
+
+    to {
+        border-color: rgba(176, 38, 255, 0.75);
+        box-shadow:
+            inset 0 0 46px rgba(176, 38, 255, 0.13),
+            0 0 34px -10px rgba(176, 38, 255, 0.55);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Chip row
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .cards-inner-layout {
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 16px;
+
     flex-grow: 1;
     width: 100%;
-    /* Ensures it spans the full dropzone width */
 }
 
-/* --- THE EXPANSION ANIMATION --- */
-/* Excludes the empty state text so it doesn't get squished into a 200px box */
-.cards-inner-layout> :not(.empty-state-wrapper) {
-    animation: slide-expand 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+/* Chips expand into place as they are added. The empty-state text is excluded,
+   otherwise it would be squeezed through a max-width on arrival.
+
+   backwards, not both: a forwards fill would leave the final `transform:
+   scale(1)` applied to the element forever, and an animated value outranks
+   every declaration in the cascade — which would silently kill the hover lift
+   these chips get from selected-coin-card.css. */
+.CheckedCoinList .cards-inner-layout> :not(.empty-state-wrapper) {
+    animation: ct-drop-chip-in 0.5s var(--ct-snap) backwards;
 }
 
-@keyframes slide-expand {
-    0% {
+@keyframes ct-drop-chip-in {
+    from {
         opacity: 0;
-        max-width: 0px;
+        max-width: 0;
         transform: scale(0.4);
         margin: 0;
     }
 
-    100% {
+    to {
         opacity: 1;
-        max-width: 200px;
+        max-width: 220px;
         transform: scale(1);
     }
 }
 
-/* --- TYPOGRAPHY --- */
-.coins-dropzone h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #e085ff;
-    text-transform: uppercase;
-    text-shadow: 0 0 12px rgba(191, 0, 255, 0.7);
-    text-align: center;
+/* Sizing for the chips themselves. Two ancestor classes, so this outranks the
+   (0,2,0) base in selected-coin-card.css regardless of import order. */
+.CheckedCoinList .cards-inner-layout .CryptoCard {
+    width: 132px;
+    padding: 18px 14px;
 }
 
-/* Centers the 3 sentences and ensures they use the full width */
-/* --- EMPTY STATE TYPOGRAPHY --- */
+/* ----------------------------------------------------------------------------
+   Empty state
 
-.empty-state-wrapper {
+   Five paragraphs, all carrying the same class. The first is the welcome line
+   and is treated as the heading; the four numbered steps below it get the rail
+   and the hover lift.
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .empty-state-wrapper {
     display: flex;
     flex-direction: column;
-    /* Aligns all the sentences to the left edge of this invisible wrapper */
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
 
-    /* Shrinks the wrapper to exactly the size of your longest sentence */
     width: fit-content;
-
-    /* Centers the entire block horizontally inside the dropzone */
+    max-width: 100%;
     margin: 0 auto;
 }
 
-.empty-text {
-    /* Reverting to your original clean, light purple text */
-    color: #d8b4fe;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    font-size: 1.05rem;
-    line-height: 1.5;
-    letter-spacing: 0.5px;
-    margin: 0;
-    opacity: 0.85;
-
-    /* Forces the text itself to read left-to-right from the line you drew */
+.CheckedCoinList .empty-text {
+    max-width: 92ch;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    letter-spacing: 0.015em;
     text-align: left;
-    max-width: 900px;
+    color: #cdb4f0;
 
-    /* Removing the dashboard backgrounds */
-    background: none;
-    padding: 0;
-    border: none;
-    box-shadow: none;
+    /* backwards so the finished animation does not pin transform to
+       translateX(0) and block the hover nudge further down */
+    animation: ct-drop-step-in 0.5s var(--ct-ease) backwards;
 }
 
-.limit-warning {
-    margin: 0;
-    padding: 8px 16px;
-    font-size: 13px;
+/* The welcome line */
+.CheckedCoinList .empty-text:first-child {
+    margin-bottom: 4px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue), var(--ct-violet));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 14px rgba(176, 38, 255, 0.4));
+    animation:
+        ct-drop-step-in 0.5s var(--ct-ease) backwards,
+        ct-drop-title-flow 5s linear infinite;
+}
+
+@keyframes ct-drop-title-flow {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* The four numbered steps */
+.CheckedCoinList .empty-text:not(:first-child) {
+    padding-left: 14px;
+    border-left: 2px solid rgba(176, 38, 255, 0.35);
+    color: #c4b0dd;
+
+    transition: color var(--ct-quick) ease, border-color var(--ct-quick) ease,
+        transform var(--ct-quick) var(--ct-ease);
+}
+
+.CheckedCoinList .empty-text:not(:first-child):hover {
+    color: #f0e6ff;
+    border-left-color: var(--ct-cyan);
+    transform: translateX(4px);
+}
+
+/* Staggered arrival, one line after the next */
+.CheckedCoinList .empty-text:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.CheckedCoinList .empty-text:nth-child(2) {
+    animation-delay: 0.13s;
+}
+
+.CheckedCoinList .empty-text:nth-child(3) {
+    animation-delay: 0.21s;
+}
+
+.CheckedCoinList .empty-text:nth-child(4) {
+    animation-delay: 0.29s;
+}
+
+.CheckedCoinList .empty-text:nth-child(5) {
+    animation-delay: 0.37s;
+}
+
+@keyframes ct-drop-step-in {
+    from {
+        opacity: 0;
+        transform: translateX(-14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Limit notice
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .limit-warning {
+    flex-shrink: 0;
+    padding: 7px 18px;
+    border-radius: var(--ct-r-pill);
+
+    font-family: var(--ct-mono);
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.09em;
     text-align: center;
-    white-space: nowrap;
+    color: var(--ct-dim);
 
-    color: #a0aabf;
-    background: rgba(191, 0, 255, 0.05);
-    border: 1px dashed rgba(191, 0, 255, 0.3);
-    border-radius: 8px;
-    animation: warningPulse 2s ease-in-out infinite alternate;
+    background: rgba(176, 38, 255, 0.07);
+    border: 1px solid rgba(176, 38, 255, 0.28);
+
+    animation: ct-drop-warn 2.6s ease-in-out infinite alternate;
 }
 
-/* --- CONTINUOUS GLOW ANIMATIONS --- */
-@keyframes purple-pulse {
-    0% {
-        box-shadow: inset 0 0 10px rgba(176, 38, 255, 0.1),
-            0 0 5px rgba(176, 38, 255, 0.1);
-        border-color: rgba(176, 38, 255, 0.4);
+@keyframes ct-drop-warn {
+    from {
+        border-color: rgba(176, 38, 255, 0.18);
+        box-shadow: 0 0 0 rgba(176, 38, 255, 0);
     }
 
-    100% {
-        box-shadow: inset 0 0 20px rgba(176, 38, 255, 0.3),
-            0 0 15px rgba(176, 38, 255, 0.4);
-        border-color: rgba(176, 38, 255, 1);
-        text-shadow: 0 0 8px rgba(176, 38, 255, 0.5);
+    to {
+        border-color: rgba(176, 38, 255, 0.6);
+        box-shadow: 0 0 18px -4px rgba(176, 38, 255, 0.6);
     }
 }
 
-@keyframes warningPulse {
-    0% {
-        box-shadow: 0 0 5px rgba(191, 0, 255, 0.05);
-        border-color: rgba(191, 0, 255, 0.15);
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .CheckedCoinList .coins-dropzone {
+        padding: 20px 16px 18px;
+        min-height: 0;
     }
 
-    100% {
-        box-shadow: 0 0 12px rgba(191, 0, 255, 0.3);
-        border-color: rgba(191, 0, 255, 0.5);
+    .CheckedCoinList .empty-text {
+        font-size: 0.86rem;
+    }
+
+    .CheckedCoinList .empty-text:first-child {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+    }
+
+    .CheckedCoinList .cards-inner-layout .CryptoCard {
+        width: 112px;
+        padding: 14px 10px;
+    }
+
+    .CheckedCoinList .limit-warning {
+        font-size: 0.64rem;
+        letter-spacing: 0.05em;
     }
 }

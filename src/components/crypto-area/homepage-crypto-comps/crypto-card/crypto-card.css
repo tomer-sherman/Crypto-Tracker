@@ -1,252 +1,382 @@
-/* crypto-card.css */
+/* ============================================================================
+   crypto-card.css — the coin tile on the home grid
 
-/* 1. MAIN WRAPPER */
-.CryptoCard {
+   IMPORTANT — every selector here starts at `.CryptoList .CryptoCard`.
+
+   Two different components render a root element called .CryptoCard: this one
+   and SelectedCoinCard. Both stylesheets are plain global CSS, so while both
+   were written as bare `.CryptoCard` they were overwriting each other and which
+   one won came down to import order. Neither file can rename its class without
+   touching the TSX, so each is anchored to the place it actually renders
+   instead. This component only ever appears inside the .cards-grid in
+   CryptoList, which makes .CryptoList the anchor.
+   ============================================================================ */
+
+.CryptoList .CryptoCard {
+    position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 4px 15px;
+    gap: 2px 14px;
 
-    width: 280px;
-    padding: 24px;
-    box-sizing: border-box;
-    border-radius: 16px;
+    width: 100%;
+    padding: 20px;
+    border-radius: var(--ct-r-md);
+    overflow: hidden;
 
-    /* Deep night sky background */
-    background: linear-gradient(145deg, #0d111d 0%, #06080e 100%);
-    border: 1px solid rgba(0, 240, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7),
-        0 0 15px rgba(191, 0, 255, 0.1) inset;
+    background: var(--ct-grad-surface);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+
+    transition:
+        transform var(--ct-base) var(--ct-ease),
+        border-color var(--ct-base) ease,
+        box-shadow var(--ct-base) ease;
 }
 
-.CryptoCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8),
-        0 0 25px rgba(0, 240, 255, 0.15) inset,
-        0 0 20px rgba(191, 0, 255, 0.2);
+/* Accent hairline along the top edge. Held at zero width until the tile is
+   hovered or selected, so a grid of twenty tiles stays quiet. */
+.CryptoList .CryptoCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    pointer-events: none;
+
+    background: var(--ct-grad-full);
+    transition: width var(--ct-slow) var(--ct-ease);
 }
 
-/* 2. CRYPTO IMAGE */
-.CryptoCard img {
-    width: 50px;
-    height: 50px;
+.CryptoList .CryptoCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--ct-line-cyan);
+    box-shadow: var(--ct-shadow-lg), var(--ct-glow-cyan);
+}
+
+.CryptoList .CryptoCard:hover::before {
+    width: 100%;
+}
+
+/* Selected tiles stay lit without needing the cursor. Kept in its own rule:
+   an engine that does not understand :has() would otherwise throw away every
+   selector it was grouped with. */
+.CryptoList .CryptoCard:has(input[type="checkbox"]:checked) {
+    border-color: var(--ct-line-violet);
+    box-shadow: var(--ct-shadow-md), var(--ct-glow-violet);
+}
+
+.CryptoList .CryptoCard:has(input[type="checkbox"]:checked)::before {
+    width: 100%;
+}
+
+/* ----------------------------------------------------------------------------
+   Coin mark
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard img {
     grid-column: 1;
     grid-row: 1 / span 2;
+
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
+    background: rgba(2, 5, 12, 0.6);
+    padding: 3px;
 
-    /* Neon cyan glow */
-    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));
-    animation: cryptoFloat 3s ease-in-out infinite;
+    /* One ring instead of a drop-shadow halo — crisper at small sizes */
+    box-shadow:
+        0 0 0 1px rgba(0, 229, 255, 0.28),
+        0 4px 14px rgba(0, 0, 0, 0.5);
+
+    /* The old rule floated every coin on an infinite loop. Twenty tiles bobbing
+       at once was the single noisiest thing on the page, so the motion now
+       belongs to the tile the cursor is actually on. */
+    transition: transform var(--ct-base) var(--ct-snap), box-shadow var(--ct-base) ease;
 }
 
-@keyframes cryptoFloat {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-5px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
+.CryptoList .CryptoCard:hover img {
+    transform: scale(1.09);
+    box-shadow:
+        0 0 0 1px rgba(0, 229, 255, 0.6),
+        0 0 18px rgba(0, 229, 255, 0.35);
 }
 
-/* 3. TEXT LAYOUT (Ticker & Name) */
-.CryptoCard span:nth-of-type(1) {
+/* ----------------------------------------------------------------------------
+   Ticker and name
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard span:nth-of-type(1) {
     grid-column: 2;
     grid-row: 1;
     align-self: end;
-    font-size: 18px;
-    font-weight: 800;
+
+    font-family: var(--ct-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     color: #ffffff;
-    letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.CryptoCard span:nth-of-type(2) {
+.CryptoList .CryptoCard span:nth-of-type(2) {
     grid-column: 2;
     grid-row: 2;
     align-self: start;
-    font-size: 13px;
+
+    font-size: 0.78rem;
     font-weight: 400;
-    color: #a0aabf;
+    letter-spacing: 0.02em;
+    color: var(--ct-faint);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* 4. THE PURE CSS TOGGLE SWITCH */
-.CryptoCard input[type="checkbox"] {
-    /* Hides the default browser checkbox */
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 54px;
-    height: 30px;
+/* ----------------------------------------------------------------------------
+   Track / watch toggle
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard input[type="checkbox"] {
     grid-column: 3;
     grid-row: 1 / span 2;
     justify-self: end;
 
-    background-color: #1a2235;
-    border-radius: 30px;
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 46px;
+    height: 26px;
+    border-radius: var(--ct-r-pill);
     position: relative;
     cursor: pointer;
     outline: none;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-    border: 1px solid #2a3655;
-    transition: all 0.4s ease;
+
+    background: rgba(2, 5, 12, 0.85);
+    border: 1px solid var(--ct-line);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+
+    transition: background-color var(--ct-base) ease, border-color var(--ct-base) ease,
+        box-shadow var(--ct-base) ease;
 }
 
-/* The Sliding Circle */
-.CryptoCard input[type="checkbox"]::before {
+/* The knob */
+.CryptoList .CryptoCard input[type="checkbox"]::before {
     content: "";
     position: absolute;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
     top: 3px;
     left: 3px;
-    background-color: #e0f7fa;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-    /* Bouncy sliding animation */
-    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+
+    background: #8fa0bb;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+
+    transition: transform var(--ct-base) var(--ct-snap), background-color var(--ct-base) ease;
 }
 
-/* When the switch is clicked/checked */
-.CryptoCard input[type="checkbox"]:checked {
-    background-color: #bf00ff;
-    /* Purple background */
+.CryptoList .CryptoCard input[type="checkbox"]:checked {
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.9), rgba(176, 38, 255, 0.9));
     border-color: transparent;
-    box-shadow: inset 0 0 0 2px #00f0ff, 0 0 12px rgba(0, 240, 255, 0.5);
-    /* Cyan outer glow */
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.45);
 }
 
-/* Moves the circle to the right when checked */
-.CryptoCard input[type="checkbox"]:checked::before {
-    transform: translateX(24px);
-    background-color: #ffffff;
+.CryptoList .CryptoCard input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+    background: #ffffff;
 }
 
-/* 5. MORE INFO BUTTON */
-.CryptoCard button {
+/* ----------------------------------------------------------------------------
+   More info / Close
+
+   A dark terminal panel at rest that wipes to a full neon fill on hover. The
+   wipe is a background-position shift across an oversized gradient, which
+   transitions cleanly — swapping background-image outright would just snap.
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard button {
     grid-column: 1 / span 3;
     margin-top: 18px;
     width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
+    padding: 12px;
 
-    /* Vibrant Animated Neon Gradient */
-    background: linear-gradient(90deg, #bf00ff 0%, #00f0ff 50%, #bf00ff 100%);
-    background-size: 200% auto;
+    /* Buttons carry a UA-supplied look of their own. Clearing it keeps the
+       control from picking up a native border or face colour underneath. */
+    appearance: none;
+    -webkit-appearance: none;
 
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    border: 1px solid rgba(0, 229, 255, 0.35);
+    border-radius: var(--ct-r-sm);
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(191, 0, 255, 0.4);
-    transition: all 0.3s ease;
+
+    /* The dark well the gradient sits on, and the reason this control reads as
+       part of the card rather than as a pale slab.
+
+       It has to be an explicit colour: `background-image` on its own is a
+       longhand and leaves the UA default `background-color: buttonface` — a
+       near-white — in place behind it. The resting half of the gradient below
+       is deliberately translucent, so that white showed straight through. */
+    background-color: rgba(2, 5, 12, 0.78);
+
+    background-image: linear-gradient(90deg,
+            rgba(0, 229, 255, 0.16) 0%,
+            rgba(176, 38, 255, 0.20) 49.9%,
+            #00e5ff 50%,
+            #b026ff 100%);
+    background-size: 202% 100%;
+    background-position: 0% 0;
+
+    /* Hairline of light along the top edge, so the panel catches an edge the
+       way the glass surfaces elsewhere on the page do */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+    color: var(--ct-cyan);
+    font-family: var(--ct-font);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+
+    transition:
+        background-position var(--ct-base) var(--ct-ease),
+        color var(--ct-quick) ease,
+        border-color var(--ct-quick) ease,
+        box-shadow var(--ct-base) ease,
+        text-shadow var(--ct-quick) ease,
+        transform var(--ct-quick) ease;
 }
 
-.CryptoCard button:hover {
-    background-position: right center;
-    box-shadow: 0 6px 20px rgba(0, 240, 255, 0.6);
-    transform: translateY(-2px);
+.CryptoList .CryptoCard button:hover {
+    background-position: 100% 0;
+    color: #05070d;
+    border-color: transparent;
+    text-shadow: none;
+    box-shadow: 0 6px 22px -6px rgba(0, 229, 255, 0.75);
 }
 
-.CryptoCard button:active {
+.CryptoList .CryptoCard button:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 10px rgba(191, 0, 255, 0.4);
+    box-shadow: 0 2px 8px -2px rgba(0, 229, 255, 0.5);
 }
 
-/* 6. COIN INFO PANEL & ANIMATION */
+/* ----------------------------------------------------------------------------
+   Price panel
 
-/* The outer wrapper that handles the stretching/shrinking of the card */
-.coin-info-wrapper {
+   The wrapper animates grid-template-rows between 0fr and 1fr, which is the
+   only way to transition to an automatic height. Padding has to live on the
+   inner element or the collapsed state never reaches zero.
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard .coin-info-wrapper {
     grid-column: 1 / span 3;
     display: grid;
-
-    /* The magic CSS property that lets us animate to an "auto" height */
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), margin-top 0.4s ease;
     margin-top: 0;
+
+    transition:
+        grid-template-rows var(--ct-base) var(--ct-ease),
+        margin-top var(--ct-base) var(--ct-ease);
 }
 
-/* When the card is opened */
-.coin-info-wrapper.open {
+.CryptoList .CryptoCard .coin-info-wrapper.open {
     grid-template-rows: 1fr;
-    margin-top: 15px;
-    /* Creates the gap only when the panel is sliding open */
+    margin-top: 14px;
 }
 
-/* The actual box styling */
-.coin-info-panel {
+.CryptoList .CryptoCard .coin-info-panel {
     overflow: hidden;
-    /* Hides the text inside while the box is squished to 0 height */
-    background: rgba(10, 15, 30, 0.6);
-    border: 1px solid rgba(191, 0, 255, 0.3);
-    border-radius: 12px;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+    background: var(--ct-inset);
+    border: 1px solid var(--ct-line-violet);
+    border-radius: var(--ct-r-sm);
+    box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.75);
 }
 
-/* We must put the padding on this inner div so the 0fr height works perfectly */
-.coin-info-content {
+.CryptoList .CryptoCard .coin-info-content {
     min-height: 0;
-    padding: 16px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 9px;
 
-    /* Fades the text out when closing */
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--ct-quick) ease;
 }
 
-/* Fades the text in only AFTER the box has started sliding open */
-.coin-info-wrapper.open .coin-info-content {
+/* Text fades in only once the panel has begun to open */
+.CryptoList .CryptoCard .coin-info-wrapper.open .coin-info-content {
     opacity: 1;
-    transition-delay: 0.15s;
+    transition-delay: 0.14s;
 }
 
-
-/* --- INDIVIDUAL PRICING ROWS (Keep these as they were) --- */
-.price-row {
+/* ----------------------------------------------------------------------------
+   Price rows
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard .price-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
+    gap: 10px;
     padding-bottom: 8px;
-    border-bottom: 1px dashed rgba(160, 170, 191, 0.2);
+    border-bottom: 1px solid var(--ct-line-soft);
 }
 
-.price-row:last-child {
+.CryptoList .CryptoCard .price-row:last-child {
     border-bottom: none;
     padding-bottom: 0;
 }
 
-.price-row .currency {
-    color: #a0aabf;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-}
-
-.price-row .value {
-    color: #00f0ff;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
-}
-
-.loading-text {
-    grid-column: 1 / span 3;
+.CryptoList .CryptoCard .price-row .currency {
+    flex-shrink: 0;
+    width: 22px;
     text-align: center;
-    margin-top: 15px;
-    color: #e085ff;
-    font-size: 13px;
-    animation: cryptoFloat 1.5s infinite alternate;
+
+    font-family: var(--ct-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ct-faint);
+}
+
+.CryptoList .CryptoCard .price-row .value {
+    font-family: var(--ct-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    color: var(--ct-cyan);
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------------
+   Fetching state
+   ---------------------------------------------------------------------------- */
+.CryptoList .CryptoCard .loading-text {
+    grid-column: 1 / span 3;
+    margin-top: 14px;
+    text-align: center;
+
+    font-family: var(--ct-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--ct-violet);
+
+    animation: ct-card-pending 1.3s ease-in-out infinite alternate;
+}
+
+@keyframes ct-card-pending {
+    from {
+        opacity: 0.35;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

@@ -1,8 +1,12 @@
-/* about.css */
+/* ============================================================================
+   about.css — the about page
 
-/* -------------------------------------
-   Main Layout Container
--------------------------------------- */
+   Every selector starts at .About. The class names this page uses (.tag,
+   .lead, .feature-card, .tech-item, .profile-*) are common enough that leaving
+   them unqualified would put them in the path of anything else that ever
+   reaches for the same word.
+   ============================================================================ */
+
 .About {
     position: relative;
     display: flex;
@@ -12,329 +16,381 @@
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 40px 20px;
-    min-height: 80vh;
+    padding: 8px 0 0;
+    min-height: 70vh;
 
-    color: #e2e8f0;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    z-index: 1;
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+
+    /* Own stacking context, so the bloom below sits behind this page's content
+       but still above the grid texture painted by the shell */
+    isolation: isolate;
 }
 
-/* Ambient background glow, same breathing effect used across the site */
+/* Ambient bloom behind the top of the page */
 .About::before {
     content: "";
     position: absolute;
     top: -5%;
     left: 10%;
     width: 80%;
-    height: 50%;
-    background: radial-gradient(ellipse at top, rgba(0, 242, 254, 0.08), transparent 70%);
+    height: 46%;
     z-index: -1;
     pointer-events: none;
-    animation: aboutAmbientBreathe 6s infinite alternate ease-in-out;
+
+    background: radial-gradient(ellipse at top, rgba(0, 229, 255, 0.10), transparent 70%);
+    animation: ct-about-breathe 7s ease-in-out infinite alternate;
 }
 
-@keyframes aboutAmbientBreathe {
-    0% {
-        opacity: 0.6;
-        transform: scale(0.95);
+@keyframes ct-about-breathe {
+    from {
+        opacity: 0.5;
+        transform: scale(0.94);
     }
 
-    100% {
+    to {
         opacity: 1;
-        transform: scale(1.05);
+        transform: scale(1.06);
     }
 }
 
-/* -------------------------------------
-   Titles
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Section titles
+   ---------------------------------------------------------------------------- */
 .About h1,
 .About h2 {
+    position: relative;
+    padding-bottom: 16px;
+
     font-weight: 900;
-    letter-spacing: 3px;
+    line-height: 1.15;
+    letter-spacing: 0.1em;
     text-align: center;
     text-transform: uppercase;
+    text-wrap: balance;
 
-    background: linear-gradient(90deg, #00f2fe, #4facfe, #bc13fe, #00f2fe);
-    background-size: 200% auto;
-    background-clip: text;
+    background-image: var(--ct-grad-flow);
+    background-size: 220% auto;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background-clip: text;
     color: transparent;
+    -webkit-text-fill-color: transparent;
 
-    animation: aboutTextShine 4s linear infinite, aboutGlowPulse 3s infinite alternate;
+    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.3));
+    animation: ct-about-flow 6s linear infinite;
 }
 
 .About h1 {
-    font-size: 2.6rem;
-    margin-bottom: 24px;
+    font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+    margin-bottom: 26px;
 }
 
 .About h2 {
-    font-size: 2.1rem;
+    font-size: clamp(1.3rem, 3vw, 2rem);
     margin-bottom: 32px;
 }
 
-@keyframes aboutTextShine {
+@keyframes ct-about-flow {
     to {
-        background-position: 200% center;
+        background-position: 220% center;
     }
 }
 
-@keyframes aboutGlowPulse {
-    0% {
-        filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.2));
-    }
+.About h1::after,
+.About h2::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
 
-    100% {
-        filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.55));
-    }
+    height: 1px;
+    width: min(55%, 340px);
+    background: linear-gradient(90deg, transparent, var(--ct-cyan), var(--ct-violet), transparent);
 }
 
-/* -------------------------------------
-   Intro Paragraph
--------------------------------------- */
+/* ----------------------------------------------------------------------------
+   Intro
+   ---------------------------------------------------------------------------- */
 .About .lead {
     max-width: 800px;
-    text-align: center;
-    font-size: 1.15rem;
-    line-height: 1.8;
-    color: #cbd5e1;
     margin-bottom: 48px;
 
-    opacity: 0;
-    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--ct-dim);
+
+    animation: ct-about-rise 0.6s var(--ct-ease) 0.12s backwards;
 }
 
-@keyframes aboutSlideUpFade {
+@keyframes ct-about-rise {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* -------------------------------------
-   Feature Grid
--------------------------------------- */
-.feature-grid {
+/* ----------------------------------------------------------------------------
+   Feature grid
+
+   Held at two columns; a three-plus-one row reads as lopsided with exactly
+   four cards.
+   ---------------------------------------------------------------------------- */
+.About .feature-grid {
     display: grid;
-    /* Locked to 2x2 -- a 3+1 row reads as lopsided */
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+
     width: 100%;
-    max-width: 860px;
-    margin-bottom: 48px;
+    max-width: 880px;
+    margin-bottom: 52px;
 }
 
-.feature-card {
+.About .feature-card {
     position: relative;
     padding: 26px 24px;
-    border-radius: 12px;
+    border-radius: var(--ct-r-md);
     overflow: hidden;
 
-    /* Glassmorphism panel matching the rest of the dashboard */
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
+    background: linear-gradient(160deg, rgba(20, 28, 48, 0.66), rgba(8, 12, 22, 0.84));
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 1px solid rgba(0, 242, 254, 0.25);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
 
-    opacity: 0;
-    transform: translateY(20px);
-    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    /* backwards, not both: a forwards fill leaves the closing `transform:
+       translateY(0)` applied for good, and an animated value beats every
+       declaration in the cascade — which would stop :hover below from ever
+       lifting the card. */
+    animation: ct-about-rise 0.6s var(--ct-ease) backwards;
+    transition:
+        transform var(--ct-base) var(--ct-ease),
+        border-color var(--ct-base) ease,
+        box-shadow var(--ct-base) ease;
 }
 
-/* Cascading entrance, one card after the other */
-.feature-card:nth-child(1) {
-    animation-delay: 0.25s;
-}
+/* Accent hairline along the top, revealed on hover */
+.About .feature-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    pointer-events: none;
 
-.feature-card:nth-child(2) {
-    animation-delay: 0.35s;
-}
-
-.feature-card:nth-child(3) {
-    animation-delay: 0.45s;
-}
-
-.feature-card:nth-child(4) {
-    animation-delay: 0.55s;
-}
-
-.feature-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(0, 242, 254, 0.45);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 242, 254, 0.12);
+    background: var(--ct-grad-full);
+    transition: width var(--ct-slow) var(--ct-ease);
 }
 
 /* Light sweeping across the card on hover */
-.feature-card::after {
+.About .feature-card::after {
     content: "";
     position: absolute;
     top: 0;
     left: -120%;
-    width: 60%;
+    width: 55%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.08), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
+
+    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.08), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.feature-card:hover::after {
-    left: 160%;
+.About .feature-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--ct-line-cyan);
+    box-shadow: var(--ct-shadow-lg), var(--ct-glow-cyan);
 }
 
-.feature-icon {
+.About .feature-card:hover::before {
+    width: 100%;
+}
+
+.About .feature-card:hover::after {
+    left: 170%;
+}
+
+/* Cascading entrance */
+.About .feature-card:nth-child(1) {
+    animation-delay: 0.20s;
+}
+
+.About .feature-card:nth-child(2) {
+    animation-delay: 0.28s;
+}
+
+.About .feature-card:nth-child(3) {
+    animation-delay: 0.36s;
+}
+
+.About .feature-card:nth-child(4) {
+    animation-delay: 0.44s;
+}
+
+.About .feature-icon {
     display: block;
-    font-size: 1.8rem;
     margin-bottom: 12px;
-    filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));
+    font-size: 1.7rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.45));
 }
 
-.feature-card h3 {
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+.About .feature-card h3 {
     margin-bottom: 12px;
 
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
-    background-clip: text;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue));
     -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     -webkit-text-fill-color: transparent;
 }
 
-.feature-card p {
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #94a3b8;
+.About .feature-card p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: var(--ct-dim);
 }
 
-/* -------------------------------------
-   Technology Stack
--------------------------------------- */
-.tech-stack {
+/* ----------------------------------------------------------------------------
+   Technology stack
+   ---------------------------------------------------------------------------- */
+.About .tech-stack {
     width: 100%;
-    max-width: 860px;
+    max-width: 880px;
     text-align: center;
 
-    opacity: 0;
-    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.65s forwards;
+    animation: ct-about-rise 0.6s var(--ct-ease) 0.55s backwards;
 }
 
-.tech-title {
+.About .tech-title {
     margin-bottom: 20px;
 }
 
-.tech-title strong {
-    font-size: 1.2rem;
+.About .tech-title strong {
+    font-size: 1.1rem;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
 
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
-    background-clip: text;
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue));
     -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.25));
+    filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.3));
 }
 
-.tech-list {
+.About .tech-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.tech-item {
+.About .tech-item {
     padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    border-radius: var(--ct-r-sm);
 
-    color: #e2e8f0;
-    background: rgba(0, 242, 254, 0.07);
-    border: 1px solid rgba(0, 242, 254, 0.25);
-    transition: all 0.3s ease;
+    font-family: var(--ct-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+
+    color: var(--ct-text);
+    background: rgba(0, 229, 255, 0.06);
+    border: 1px solid var(--ct-line-cyan);
+
+    transition: all var(--ct-quick) var(--ct-ease);
 }
 
-.tech-item:hover {
-    color: #0f172a;
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
+.About .tech-item:hover {
+    color: #05070d;
+    background: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue));
     border-color: transparent;
-    box-shadow: 0 0 14px rgba(0, 242, 254, 0.45);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 18px -6px rgba(0, 229, 255, 0.9);
+    transform: translateY(-3px);
 }
 
-/* -------------------------------------
-   Divider Between The Two Sections
--------------------------------------- */
-.section-divider {
+/* ----------------------------------------------------------------------------
+   Divider
+   ---------------------------------------------------------------------------- */
+.About .section-divider {
     width: 100%;
     max-width: 600px;
     height: 1px;
     margin: 56px 0;
 
-    background: linear-gradient(90deg, transparent, #00f2fe, #bc13fe, transparent);
-    box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
-    animation: aboutDividerPulse 3s infinite alternate ease-in-out;
+    background: linear-gradient(90deg, transparent, var(--ct-cyan), var(--ct-violet), transparent);
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+    animation: ct-about-divider 3.4s ease-in-out infinite alternate;
 }
 
-@keyframes aboutDividerPulse {
-    0% {
-        opacity: 0.35;
+@keyframes ct-about-divider {
+    from {
+        opacity: 0.3;
+        transform: scaleX(0.75);
     }
 
-    100% {
+    to {
         opacity: 1;
+        transform: scaleX(1);
     }
 }
 
-/* -------------------------------------
-   Profile Card
--------------------------------------- */
-.profile-card {
-    position: relative;
-    width: 100%;
-    max-width: 860px;
-    padding: 32px 34px;
-    border-radius: 12px;
+/* ----------------------------------------------------------------------------
+   Profile card
 
-    /* Photo + name form the header row; the paragraphs run the full width
-       underneath so no column is left holding empty space. */
+   Photo and name form the header row; the paragraphs run the full width
+   underneath so no column is left holding empty space.
+   ---------------------------------------------------------------------------- */
+.About .profile-card {
+    position: relative;
     display: grid;
     grid-template-columns: 150px minmax(0, 1fr);
-    column-gap: 24px;
-    row-gap: 0;
+    column-gap: 26px;
 
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
+    width: 100%;
+    max-width: 880px;
+    padding: 32px 34px;
+    border-radius: var(--ct-r-md);
+    overflow: hidden;
+
+    background: linear-gradient(160deg, rgba(20, 28, 48, 0.7), rgba(8, 12, 22, 0.88));
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
 
-    /* Neon accent bar down the left edge */
-    border-left: 4px solid transparent;
-    background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
-        linear-gradient(to bottom, #00f2fe, #bc13fe);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-
-    opacity: 0;
-    transform: translateY(20px);
-    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+    animation: ct-about-rise 0.6s var(--ct-ease) 0.18s backwards;
 }
 
-/* -------------------------------------
-   Profile Photo Slot (150x150)
--------------------------------------- */
-.profile-photo {
-    /* Sits beside the name and role, not beside the whole card */
+/* Neon rail down the left edge */
+.About .profile-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--ct-cyan), var(--ct-violet), var(--ct-rose));
+}
+
+/* --- Photo slot --------------------------------------------------------- */
+.About .profile-photo {
     grid-column: 1;
     grid-row: 1 / span 2;
     align-self: center;
@@ -342,172 +398,165 @@
     position: relative;
     width: 150px;
     height: 150px;
-    border-radius: 12px;
-    overflow: hidden;
     margin-bottom: 26px;
+    border-radius: var(--ct-r-md);
+    overflow: hidden;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: rgba(2, 6, 23, 0.6);
-    border: 1px solid rgba(0, 242, 254, 0.3);
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.12), inset 0 0 30px rgba(0, 242, 254, 0.04);
-    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    background: rgba(2, 5, 12, 0.6);
+    border: 1px solid var(--ct-line-cyan);
+    box-shadow:
+        0 0 22px -6px rgba(0, 229, 255, 0.35),
+        inset 0 0 30px rgba(0, 229, 255, 0.04);
+
+    transition: transform var(--ct-base) var(--ct-ease), border-color var(--ct-base) ease,
+        box-shadow var(--ct-base) ease;
 }
 
-.profile-photo:hover {
+.About .profile-photo:hover {
     transform: translateY(-4px);
-    border-color: rgba(0, 242, 254, 0.6);
-    box-shadow: 0 0 28px rgba(0, 242, 254, 0.28);
+    border-color: rgba(0, 229, 255, 0.6);
+    box-shadow: 0 0 30px -4px rgba(0, 229, 255, 0.5);
 }
 
-/* The real picture fills the frame without stretching */
-.profile-photo img {
+/* Fills the frame without stretching, once the real picture is dropped in */
+.About .profile-photo img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
 }
 
-/* Placeholder shown until the picture is added */
-.photo-placeholder {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: rgba(0, 242, 254, 0.35);
+/* Shown until that picture exists */
+.About .photo-placeholder {
+    font-family: var(--ct-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: rgba(0, 229, 255, 0.35);
 }
 
-.profile-name {
-    /* Bottom of the first row, so name and role sit centred against the photo */
+/* --- Name and role ------------------------------------------------------- */
+.About .profile-name {
     grid-column: 2;
     grid-row: 1;
     align-self: end;
 
-    font-size: 1.8rem;
-    font-weight: 900;
-    letter-spacing: 2px;
     margin-bottom: 6px;
+    font-size: clamp(1.2rem, 2.6vw, 1.7rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
 
-    background: linear-gradient(90deg, #00f2fe, #4facfe, #f093fb);
-    background-clip: text;
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue), var(--ct-pink));
     -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     -webkit-text-fill-color: transparent;
 }
 
-.profile-role {
+.About .profile-role {
     grid-column: 2;
     grid-row: 2;
     align-self: start;
 
-    font-size: 0.9rem;
-    letter-spacing: 2px;
+    margin-bottom: 26px;
+    font-family: var(--ct-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 26px;
+    color: var(--ct-faint);
 }
 
-.profile-text {
-    /* Full width under the header row -- keeps the lines an easy length
-       instead of squeezing them into a narrow column */
+/* --- Body copy -----------------------------------------------------------
+   Full width under the header row, so the lines stay an easy length instead
+   of being squeezed into a narrow column beside the photo. */
+.About .profile-text {
     grid-column: 1 / -1;
-    font-size: 1rem;
-    line-height: 1.8;
-    color: #cbd5e1;
     margin-bottom: 16px;
+    font-size: 0.97rem;
+    line-height: 1.85;
+    color: var(--ct-dim);
 }
 
-.profile-text:last-of-type {
+.About .profile-text:last-of-type {
     margin-bottom: 26px;
 }
 
-/* -------------------------------------
-   Interest Tags
--------------------------------------- */
-.tag-list {
+/* --- Tags ---------------------------------------------------------------- */
+.About .tag-list {
     grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 9px;
 }
 
-.tag {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
+.About .tag {
+    padding: 6px 15px;
+    border-radius: var(--ct-r-pill);
+
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03em;
 
     color: #7dd3fc;
-    background: rgba(0, 242, 254, 0.07);
-    border: 1px solid rgba(0, 242, 254, 0.22);
-    transition: all 0.3s ease;
+    background: rgba(0, 229, 255, 0.06);
+    border: 1px solid rgba(0, 229, 255, 0.22);
+
+    transition: all var(--ct-quick) var(--ct-ease);
 }
 
-.tag:hover {
-    color: #0f172a;
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
+.About .tag:hover {
+    color: #05070d;
+    background: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue));
     border-color: transparent;
-    box-shadow: 0 0 14px rgba(0, 242, 254, 0.45);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 18px -6px rgba(0, 229, 255, 0.9);
+    transform: translateY(-3px);
 }
 
-/* -------------------------------------
+/* ----------------------------------------------------------------------------
    Responsive
--------------------------------------- */
-/* On narrow screens the header row stacks: photo on top, name under it */
-@media (max-width: 520px) {
-    .profile-card {
+   ---------------------------------------------------------------------------- */
+
+/* Four cards in one column below this */
+@media (max-width: 700px) {
+    .About .feature-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Header row stacks: photo on top, name underneath */
+@media (max-width: 560px) {
+    .About .profile-card {
         grid-template-columns: minmax(0, 1fr);
         justify-items: center;
         text-align: center;
+        padding: 26px 20px;
     }
 
-    .profile-photo {
+    .About .profile-photo {
         grid-row: auto;
         margin-bottom: 18px;
     }
 
-    .profile-name,
-    .profile-role {
+    .About .profile-name,
+    .About .profile-role {
         grid-column: 1;
         grid-row: auto;
     }
 
-    .profile-text {
+    .About .profile-text {
         text-align: left;
     }
 
-    .tag-list {
+    .About .tag-list {
         justify-content: center;
-    }
-}
-
-/* The 2x2 feature grid becomes a single column on narrow screens */
-@media (max-width: 700px) {
-    .feature-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .About h1 {
-        font-size: 1.9rem;
-    }
-
-    .About h2 {
-        font-size: 1.6rem;
     }
 
     .About .lead {
-        font-size: 1rem;
-    }
-
-    .profile-card {
-        padding: 24px 20px;
-    }
-
-    .profile-name {
-        font-size: 1.5rem;
+        font-size: 0.95rem;
     }
 }

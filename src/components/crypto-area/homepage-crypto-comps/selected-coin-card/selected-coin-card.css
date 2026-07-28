@@ -1,100 +1,129 @@
-/* selected-coin-card.css */
+/* ============================================================================
+   selected-coin-card.css — the compact coin chip
 
-.CryptoCard {
-    /* Layout */
+   This component's root element is also called .CryptoCard, exactly like the
+   home-grid tile in crypto-card.css. Since neither file may rename its class,
+   both are anchored to where they actually render. The tile is anchored to
+   .CryptoList; this chip is anchored to the four parents that mount it:
+
+       CheckedCoinList  -> .CheckedCoinList .cards-inner-layout
+       ValidationDialog -> .ValidationDialog .replace-item
+       AiInsightCard    -> .AiRecommendationCard
+       CryptoGraph      -> .CryptoGraph .graph-header
+
+   The base rules below score (0,2,0). Each consumer stylesheet re-states its
+   own adjustments at (0,3,0) using two ancestor classes, so the cascade here
+   is settled by specificity and never by which file happened to import first.
+   ============================================================================ */
+
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 24px;
+    gap: 10px;
+
     width: 140px;
-
-    /* High-Tech Glassmorphism Background */
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    /* Neon Borders & Shadows */
-    border: 1px solid rgba(0, 242, 254, 0.3);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5),
-        inset 0 0 15px rgba(0, 242, 254, 0.05);
-
-    /* Animation Basics */
-    color: #e2e8f0;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    position: relative;
+    padding: 20px 16px;
+    border-radius: var(--ct-r-md);
     overflow: hidden;
+
+    background: var(--ct-grad-surface);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
+
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+    cursor: pointer;
+
+    transition:
+        transform var(--ct-base) var(--ct-ease),
+        border-color var(--ct-base) ease,
+        box-shadow var(--ct-base) ease;
 }
 
-/* The Vibrant Cyberpunk Accent Line at the top */
-.CryptoCard::before {
+/* Full-width accent across the top — this chip is always a deliberate
+   selection, so unlike the grid tile it earns its accent at rest. */
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #00f2fe, #4facfe, #f093fb, #f5576c);
-    opacity: 0.8;
+    height: 2px;
+    pointer-events: none;
+
+    background: var(--ct-grad-full);
+    opacity: 0.85;
 }
 
-/* Hover Effects - Lift and Glow */
-.CryptoCard:hover {
-    transform: translateY(-6px);
-    border-color: rgba(0, 242, 254, 0.8);
-    box-shadow: 0 8px 40px rgba(0, 242, 254, 0.25),
-        0 0 20px rgba(245, 87, 108, 0.15);
-    /* Mixing cyan and magenta */
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard:hover {
+    transform: translateY(-5px);
+    border-color: var(--ct-line-cyan);
+    box-shadow: var(--ct-shadow-lg), var(--ct-glow-cyan);
 }
 
-/* Coin Image Styling */
-.CryptoCard img {
-    width: 60px;
-    height: 60px;
+/* ----------------------------------------------------------------------------
+   Coin mark
+   ---------------------------------------------------------------------------- */
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard img {
+    width: 54px;
+    height: 54px;
     object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.15));
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+    transition: transform var(--ct-slow) var(--ct-snap), filter var(--ct-base) ease;
 }
 
-/* Make the coin "pop" on hover */
-.CryptoCard:hover img {
-    transform: scale(1.15) rotate(5deg);
-    filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.4));
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard:hover img {
+    transform: scale(1.14) rotate(4deg);
+    filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.5));
 }
 
-
-/* Symbol (e.g., BTC, ETH) - Gradient Neon Text */
-.CryptoCard span:nth-of-type(1) {
+/* ----------------------------------------------------------------------------
+   Ticker
+   ---------------------------------------------------------------------------- */
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard span:nth-of-type(1) {
     display: inline-block;
-    /* Required for gradients to size correctly on spans */
-    font-size: 1.3rem;
-    font-weight: 900;
-    letter-spacing: 2px;
+    max-width: 100%;
 
-    /* Vibrant Text Gradient */
-    background: linear-gradient(to right, #00f2fe, #4facfe);
-    background-clip: text;
-    /* Modern standard */
+    font-family: var(--ct-mono);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue));
     -webkit-background-clip: text;
-    /* Safari/Chrome support */
-    -webkit-text-fill-color: transparent;
-    /* Makes text transparent so background shows */
+    background-clip: text;
     color: transparent;
-    /* Fallback */
+    -webkit-text-fill-color: transparent;
 
-    /* Fix: Use filter instead of text-shadow to prevent breaking the gradient clip */
-    filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.4));
+    /* drop-shadow rather than text-shadow: a text-shadow would paint behind the
+       clipped glyphs and wash the gradient out */
+    filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.4));
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Full Coin Name (e.g., Bitcoin, Ethereum) */
-.CryptoCard span:nth-of-type(2) {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    color: #94a3b8;
-    letter-spacing: 1px;
+/* ----------------------------------------------------------------------------
+   Coin name
+   ---------------------------------------------------------------------------- */
+:is(.CheckedCoinList, .ValidationDialog, .AiRecommendationCard, .CryptoGraph) .CryptoCard span:nth-of-type(2) {
+    max-width: 100%;
+
+    font-size: 0.68rem;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    text-align: center;
+    color: var(--ct-faint);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

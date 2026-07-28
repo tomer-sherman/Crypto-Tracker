@@ -1,117 +1,143 @@
-/* pagination-menu.css */
+/* ============================================================================
+   pagination-menu.css — page stepper
+
+   Scoped to .PaginationMenu. The child classes this component uses (.nav-btn,
+   .number-btn, .page-numbers) are generic enough that leaving them unqualified
+   would put them in the way of any future component reaching for the same
+   names, so all three are nested under the root.
+   ============================================================================ */
 
 .PaginationMenu {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-    margin-bottom: 30px;
-    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 30px;
+    padding: 8px 12px;
+
+    background: rgba(13, 19, 33, 0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--ct-line);
+    border-radius: var(--ct-r-pill);
+    box-shadow: var(--ct-shadow-sm);
 }
 
-.page-numbers {
+.PaginationMenu .page-numbers {
     display: flex;
-    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
 }
 
-/* --- THE NAV BUTTONS (Back / Next) --- */
-.nav-btn {
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid rgba(160, 170, 191, 0.3);
-    background: transparent;
-    color: #a0aabf;
-    font-size: 15px;
-    font-weight: 600;
-    text-transform: uppercase;
+/* ----------------------------------------------------------------------------
+   Back / Next
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .nav-btn {
+    padding: 7px 16px;
+    border-radius: var(--ct-r-pill);
     cursor: pointer;
 
-    /* Added transform to the transition so scaling looks smooth */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: transparent;
+    border: 1px solid var(--ct-line);
+    color: var(--ct-dim);
+
+    font-family: var(--ct-font);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    transition: all var(--ct-quick) var(--ct-ease);
 }
 
-.nav-btn:hover:not(:disabled) {
-    border-color: rgba(0, 240, 255, 0.4);
-    color: #00f0ff;
-    background: rgba(0, 240, 255, 0.05);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
-    /* Slight glow on hover */
+.PaginationMenu .nav-btn:hover:not(:disabled) {
+    color: var(--ct-cyan);
+    border-color: var(--ct-line-cyan);
+    background: rgba(0, 229, 255, 0.07);
+    box-shadow: 0 0 16px -4px rgba(0, 229, 255, 0.6);
 }
 
-/* 1. The Physical Press Animation for Nav Buttons */
-.nav-btn:active:not(:disabled) {
-    transform: scale(0.9);
+.PaginationMenu .nav-btn:active:not(:disabled) {
+    transform: scale(0.92);
 }
 
-.nav-btn:disabled {
-    border-color: #2a3655;
-    color: #2a3655;
+.PaginationMenu .nav-btn:disabled {
+    border-color: transparent;
+    color: rgba(148, 163, 184, 0.25);
     cursor: not-allowed;
 }
 
-
-/* --- THE NUMBER BUTTONS --- */
-.number-btn {
-    width: 30px;
-    height: 30px;
+/* ----------------------------------------------------------------------------
+   Page numbers
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .number-btn {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: none;
-    background: transparent;
-    color: #a0aabf;
-    font-size: 15px;
-    font-weight: 600;
+    border: 1px solid transparent;
     cursor: pointer;
 
-    /* Added transform to transition for smooth interactions */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: transparent;
+    color: var(--ct-dim);
+
+    font-family: var(--ct-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+
+    transition: all var(--ct-quick) var(--ct-ease);
 }
 
-.number-btn:hover:not(.active) {
-    background: #1a2235;
+.PaginationMenu .number-btn:hover:not(.active) {
     color: #ffffff;
+    background: rgba(0, 229, 255, 0.09);
+    border-color: var(--ct-line-cyan);
     transform: translateY(-2px);
-    /* Slight lift on hover */
 }
 
-/* 2. The Physical Press Animation for Numbers */
-.number-btn:active:not(.active) {
-    transform: scale(0.85);
+.PaginationMenu .number-btn:active:not(.active) {
+    transform: scale(0.88);
 }
 
-/* --- THE ACTIVE PAGE INDICATOR --- */
-.number-btn.active {
-    background: linear-gradient(90deg, #bf00ff 0%, #00f0ff 100%);
-    color: #ffffff;
+/* ----------------------------------------------------------------------------
+   Current page
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .number-btn.active {
+    color: #05070d;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--ct-cyan), var(--ct-violet));
+    border-color: transparent;
+    cursor: default;
 
-    /* 3. Attach the Pop-in and the Continuous Pulse */
     animation:
-        activate-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-        active-pulse 2s infinite alternate;
+        ct-page-pop 0.45s var(--ct-snap) both,
+        ct-page-halo 2.2s ease-in-out infinite alternate;
 }
 
-/* --- KEYFRAMES --- */
-
-/* Makes the active button spring into place when clicked */
-@keyframes activate-pop {
-    0% {
-        transform: scale(0.5) rotate(-15deg);
-        opacity: 0.5;
+@keyframes ct-page-pop {
+    from {
+        transform: scale(0.55);
+        opacity: 0.4;
     }
 
-    100% {
-        transform: scale(1) rotate(0deg);
+    to {
+        transform: scale(1);
         opacity: 1;
     }
 }
 
-/* Makes the active button breathe/pulse with neon colors */
-@keyframes active-pulse {
-    0% {
-        box-shadow: 0 0 5px rgba(191, 0, 255, 0.4);
+@keyframes ct-page-halo {
+    from {
+        box-shadow: 0 0 6px -1px rgba(0, 229, 255, 0.5);
     }
 
-    100% {
-        box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    to {
+        box-shadow: 0 0 18px 1px rgba(176, 38, 255, 0.75);
     }
 }

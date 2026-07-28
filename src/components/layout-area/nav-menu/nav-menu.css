@@ -1,151 +1,234 @@
-/* Scope strictly to the NavMenu */
-/* Scope strictly to the NavMenu */
+/* ============================================================================
+   nav-menu.css — the command bar
+
+   Four NavLinks and a search field. Everything is scoped to .NavMenu.
+
+   The old bar drew a full box around every link, which meant five competing
+   rectangles fighting for attention. Links are quiet at rest here and the
+   current route is marked by a single gradient rule underneath it, so the bar
+   reads as one object instead of a row of buttons.
+   ============================================================================ */
+
 .NavMenu {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
-
-    /* Dropped from 0.95 to 0.75 for a perfect transparent glass effect */
-    background: rgba(17, 22, 34, 1);
-
-    /* The blur keeps the text readable even with the transparent background */
-    backdrop-filter: blur(1.5px);
-    -webkit-backdrop-filter: blur(12px);
-
-    padding: 0.75rem 4rem;
-
-    /* Flat top bar look */
-    border-bottom: 1px solid rgba(0, 243, 255, 0.15);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    gap: 0.4rem;
 
     width: 100%;
-    box-sizing: border-box;
+    padding: 0.7rem clamp(1rem, 4vw, 3rem);
+
+    background: linear-gradient(180deg, rgba(9, 13, 23, 0.94), rgba(9, 13, 23, 0.82));
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+
+    box-shadow:
+        0 10px 34px -8px rgba(0, 0, 0, 0.85),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* Base styles for the React Router NavLinks */
-.NavMenu a {
-    box-sizing: border-box;
-    /* Ensures padding/borders don't break the height */
-    position: relative;
+/* Gradient hairline along the bottom edge of the bar */
+.NavMenu::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    pointer-events: none;
 
-    /* Flexbox inside the link ensures text is mathematically centered */
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-line-cyan) 20%,
+            rgba(176, 38, 255, 0.5) 50%,
+            var(--ct-line-cyan) 80%,
+            transparent);
+}
+
+/* ----------------------------------------------------------------------------
+   Links
+   ---------------------------------------------------------------------------- */
+.NavMenu a {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    /* UNIFIED HEIGHT FIX */
     height: 42px;
-    padding: 0 1.5rem;
+    padding: 0 1.15rem;
 
     text-decoration: none;
-    color: rgba(226, 232, 240, 0.6);
-    font-size: 0.8rem;
-    font-weight: 600;
+    white-space: nowrap;
+    color: var(--ct-dim);
+    font-size: 0.74rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
 
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-
+    background: transparent;
+    border-radius: var(--ct-r-sm);
     overflow: hidden;
-    /* Brought back the snappy transition timing */
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    transition:
+        color var(--ct-quick) ease,
+        background-color var(--ct-quick) ease,
+        transform var(--ct-quick) var(--ct-ease);
 }
 
-/* --- RESTORED: High-Tech Sweep Animation Setup --- */
+/* Light sweeping across a link as the cursor lands on it */
 .NavMenu a::before {
     content: "";
     position: absolute;
     top: 0;
     left: -150%;
-    width: 50%;
+    width: 55%;
     height: 100%;
+    pointer-events: none;
+
     background: linear-gradient(90deg,
             transparent,
-            rgba(0, 243, 255, 0.4),
+            rgba(0, 229, 255, 0.28),
             transparent);
-    transform: skewX(-25deg);
+    transform: skewX(-22deg);
     transition: left 0s;
 }
 
-/* --- RESTORED: Hover Effects (Pop-up and Sweep) --- */
-.NavMenu a:hover {
-    color: #fff;
-    background: rgba(0, 243, 255, 0.05);
-    border-color: rgba(0, 243, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(0, 243, 255, 0.1);
-    transform: translateY(-3px);
-    /* The physical pop-up */
+/* The route indicator. Collapsed to nothing until the link is hovered or
+   current, then it opens out from the centre. */
+.NavMenu a::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 5px;
+    transform: translateX(-50%);
+
+    height: 2px;
+    width: 0;
+    border-radius: var(--ct-r-pill);
+    background: var(--ct-grad-primary);
+
+    transition: width var(--ct-base) var(--ct-ease), box-shadow var(--ct-base) ease;
 }
 
-/* Trigger the sweep animation on hover */
+.NavMenu a:hover {
+    color: #ffffff;
+    background: rgba(0, 229, 255, 0.06);
+    transform: translateY(-2px);
+}
+
 .NavMenu a:hover::before {
     left: 200%;
-    transition: left 0.4s ease-out;
+    transition: left 0.5s ease-out;
 }
 
-/* --- RESTORED: Active State (Pop-up and Glow) --- */
-/* Active State - Perfectly aligned, no physical jump */
+.NavMenu a:hover::after {
+    width: 40%;
+}
+
+/* ----------------------------------------------------------------------------
+   Current route
+
+   No lift here on purpose: the active link has to stay on the same baseline as
+   the search field beside it.
+   ---------------------------------------------------------------------------- */
 .NavMenu a.active {
-    color: #fff;
-    background: linear-gradient(180deg, rgba(188, 19, 254, 0.1) 0%, rgba(0, 243, 255, 0.05) 100%);
-    border-color: rgba(188, 19, 254, 0.5);
-
-    /* Kept the bottom glow, but removed the transform: translateY(-3px) */
-    box-shadow:
-        0 0 15px rgba(188, 19, 254, 0.15),
-        inset 0 -3px 0 #00f3ff;
-
-    /* Forces the box to stay perfectly aligned with the input */
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(176, 38, 255, 0.14), rgba(0, 229, 255, 0.06));
     transform: translateY(0);
 }
 
-/* High-Tech Search Input */
-.NavMenu input {
-    box-sizing: border-box;
-    height: 42px;
-    padding: 0 1.2rem;
-
-    /* REMOVED margin-left: auto; so it stays grouped with the links */
-    margin: 0;
-
-    width: 140px;
-    text-align: center;
-    background: rgba(10, 14, 23, 0.6);
-    border: 1px solid rgba(0, 243, 255, 0.2);
-    border-radius: 4px;
-    color: #00f3ff;
-    font-family: inherit;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    outline: none;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.NavMenu a.active::after {
+    width: calc(100% - 2.3rem);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
 }
 
-/* Input Hover & Focus */
+/* ----------------------------------------------------------------------------
+   Search field
+   ---------------------------------------------------------------------------- */
+.NavMenu input {
+    height: 42px;
+    width: 150px;
+    padding: 0 1rem;
+    margin-left: 0.6rem;
+
+    text-align: center;
+    font-family: var(--ct-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--ct-cyan);
+
+    background: var(--ct-inset);
+    border: 1px solid var(--ct-line-cyan);
+    border-radius: var(--ct-r-sm);
+    outline: none;
+
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+
+    transition:
+        width var(--ct-base) var(--ct-ease),
+        border-color var(--ct-quick) ease,
+        box-shadow var(--ct-quick) ease,
+        background-color var(--ct-quick) ease;
+}
+
 .NavMenu input:hover {
-    border-color: rgba(0, 243, 255, 0.5);
+    border-color: rgba(0, 229, 255, 0.5);
 }
 
 .NavMenu input:focus {
-    /* Much more subtle expansion animation */
-    width: 160px;
-
-    background: rgba(17, 22, 34, 0.95);
-    border-color: rgba(188, 19, 254, 0.8);
-    color: #fff;
-    box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+    width: 200px;
+    color: #ffffff;
+    background: rgba(11, 16, 28, 0.95);
+    border-color: rgba(176, 38, 255, 0.75);
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.6),
+        var(--ct-glow-violet);
 }
 
-/* Placeholder visibility toggles */
+/* The field is already labelled by its placeholder, so the global focus ring
+   would only double up on the glow above. */
+.NavMenu input:focus-visible {
+    outline: none;
+}
+
 .NavMenu input::placeholder {
-    color: rgba(0, 243, 255, 0.5);
-    transition: color 0.2s ease-in-out;
+    color: rgba(0, 229, 255, 0.45);
+    transition: opacity var(--ct-quick) ease;
 }
 
 .NavMenu input:focus::placeholder {
-    color: transparent;
+    opacity: 0;
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens
+
+   The bar wraps rather than scrolling sideways; "Ai Crypto Recommendation" is
+   long enough that a single row stops fitting well before phone widths.
+   ---------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .NavMenu {
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .NavMenu a {
+        height: 38px;
+        padding: 0 0.8rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.09em;
+    }
+
+    .NavMenu input {
+        height: 38px;
+        width: 130px;
+        margin-left: 0.3rem;
+    }
+
+    .NavMenu input:focus {
+        width: 160px;
+    }
 }
