@@ -1,3 +1,513 @@
+/* about.css */
+
+/* -------------------------------------
+   Main Layout Container
+-------------------------------------- */
 .About {
-	
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    min-height: 80vh;
+
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    z-index: 1;
+}
+
+/* Ambient background glow, same breathing effect used across the site */
+.About::before {
+    content: "";
+    position: absolute;
+    top: -5%;
+    left: 10%;
+    width: 80%;
+    height: 50%;
+    background: radial-gradient(ellipse at top, rgba(0, 242, 254, 0.08), transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    animation: aboutAmbientBreathe 6s infinite alternate ease-in-out;
+}
+
+@keyframes aboutAmbientBreathe {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+/* -------------------------------------
+   Titles
+-------------------------------------- */
+.About h1,
+.About h2 {
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-align: center;
+    text-transform: uppercase;
+
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #bc13fe, #00f2fe);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+
+    animation: aboutTextShine 4s linear infinite, aboutGlowPulse 3s infinite alternate;
+}
+
+.About h1 {
+    font-size: 2.6rem;
+    margin-bottom: 24px;
+}
+
+.About h2 {
+    font-size: 2.1rem;
+    margin-bottom: 32px;
+}
+
+@keyframes aboutTextShine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+@keyframes aboutGlowPulse {
+    0% {
+        filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.2));
+    }
+
+    100% {
+        filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.55));
+    }
+}
+
+/* -------------------------------------
+   Intro Paragraph
+-------------------------------------- */
+.About .lead {
+    max-width: 800px;
+    text-align: center;
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+    margin-bottom: 48px;
+
+    opacity: 0;
+    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+}
+
+@keyframes aboutSlideUpFade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* -------------------------------------
+   Feature Grid
+-------------------------------------- */
+.feature-grid {
+    display: grid;
+    /* Locked to 2x2 -- a 3+1 row reads as lopsided */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    width: 100%;
+    max-width: 860px;
+    margin-bottom: 48px;
+}
+
+.feature-card {
+    position: relative;
+    padding: 26px 24px;
+    border-radius: 12px;
+    overflow: hidden;
+
+    /* Glassmorphism panel matching the rest of the dashboard */
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(0, 242, 254, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+    opacity: 0;
+    transform: translateY(20px);
+    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+/* Cascading entrance, one card after the other */
+.feature-card:nth-child(1) {
+    animation-delay: 0.25s;
+}
+
+.feature-card:nth-child(2) {
+    animation-delay: 0.35s;
+}
+
+.feature-card:nth-child(3) {
+    animation-delay: 0.45s;
+}
+
+.feature-card:nth-child(4) {
+    animation-delay: 0.55s;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 242, 254, 0.45);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 242, 254, 0.12);
+}
+
+/* Light sweeping across the card on hover */
+.feature-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.08), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.feature-card:hover::after {
+    left: 160%;
+}
+
+.feature-icon {
+    display: block;
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));
+}
+
+.feature-card h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-card p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #94a3b8;
+}
+
+/* -------------------------------------
+   Technology Stack
+-------------------------------------- */
+.tech-stack {
+    width: 100%;
+    max-width: 860px;
+    text-align: center;
+
+    opacity: 0;
+    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.65s forwards;
+}
+
+.tech-title {
+    margin-bottom: 20px;
+}
+
+.tech-title strong {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.25));
+}
+
+.tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.tech-item {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    color: #e2e8f0;
+    background: rgba(0, 242, 254, 0.07);
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    transition: all 0.3s ease;
+}
+
+.tech-item:hover {
+    color: #0f172a;
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    border-color: transparent;
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.45);
+    transform: translateY(-2px);
+}
+
+/* -------------------------------------
+   Divider Between The Two Sections
+-------------------------------------- */
+.section-divider {
+    width: 100%;
+    max-width: 600px;
+    height: 1px;
+    margin: 56px 0;
+
+    background: linear-gradient(90deg, transparent, #00f2fe, #bc13fe, transparent);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+    animation: aboutDividerPulse 3s infinite alternate ease-in-out;
+}
+
+@keyframes aboutDividerPulse {
+    0% {
+        opacity: 0.35;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* -------------------------------------
+   Profile Card
+-------------------------------------- */
+.profile-card {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    padding: 32px 34px;
+    border-radius: 12px;
+
+    /* Photo + name form the header row; the paragraphs run the full width
+       underneath so no column is left holding empty space. */
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    column-gap: 24px;
+    row-gap: 0;
+
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+    /* Neon accent bar down the left edge */
+    border-left: 4px solid transparent;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
+        linear-gradient(to bottom, #00f2fe, #bc13fe);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+
+    opacity: 0;
+    transform: translateY(20px);
+    animation: aboutSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* -------------------------------------
+   Profile Photo Slot (150x150)
+-------------------------------------- */
+.profile-photo {
+    /* Sits beside the name and role, not beside the whole card */
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.12), inset 0 0 30px rgba(0, 242, 254, 0.04);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.profile-photo:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 242, 254, 0.6);
+    box-shadow: 0 0 28px rgba(0, 242, 254, 0.28);
+}
+
+/* The real picture fills the frame without stretching */
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Placeholder shown until the picture is added */
+.photo-placeholder {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(0, 242, 254, 0.35);
+}
+
+.profile-name {
+    /* Bottom of the first row, so name and role sit centred against the photo */
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+
+    background: linear-gradient(90deg, #00f2fe, #4facfe, #f093fb);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.profile-role {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 26px;
+}
+
+.profile-text {
+    /* Full width under the header row -- keeps the lines an easy length
+       instead of squeezing them into a narrow column */
+    grid-column: 1 / -1;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+}
+
+.profile-text:last-of-type {
+    margin-bottom: 26px;
+}
+
+/* -------------------------------------
+   Interest Tags
+-------------------------------------- */
+.tag-list {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    color: #7dd3fc;
+    background: rgba(0, 242, 254, 0.07);
+    border: 1px solid rgba(0, 242, 254, 0.22);
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    color: #0f172a;
+    background: linear-gradient(90deg, #00f2fe, #4facfe);
+    border-color: transparent;
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.45);
+    transform: translateY(-2px);
+}
+
+/* -------------------------------------
+   Responsive
+-------------------------------------- */
+/* On narrow screens the header row stacks: photo on top, name under it */
+@media (max-width: 520px) {
+    .profile-card {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        text-align: center;
+    }
+
+    .profile-photo {
+        grid-row: auto;
+        margin-bottom: 18px;
+    }
+
+    .profile-name,
+    .profile-role {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .profile-text {
+        text-align: left;
+    }
+
+    .tag-list {
+        justify-content: center;
+    }
+}
+
+/* The 2x2 feature grid becomes a single column on narrow screens */
+@media (max-width: 700px) {
+    .feature-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .About h1 {
+        font-size: 1.9rem;
+    }
+
+    .About h2 {
+        font-size: 1.6rem;
+    }
+
+    .About .lead {
+        font-size: 1rem;
+    }
+
+    .profile-card {
+        padding: 24px 20px;
+    }
+
+    .profile-name {
+        font-size: 1.5rem;
+    }
 }

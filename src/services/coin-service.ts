@@ -6,8 +6,8 @@ import { hundredCoinsSlice } from "../redux/hundred-coin-slice";
 import { selectedCoinsSlice } from "../redux/selected-coins-slice";
 import { CoinInfoModel } from "../models/coin-info-model";
 import { notify } from "../utils/notify";
-import { CoinCurrencyGraphModel } from "../models/coin-currency-graph-model";
-import { promptService } from "./prompt-service";
+import { adaptGraph, GraphModel, GraphSocketData } from "../models/graph-model";
+
 
 class CoinService {
 
@@ -31,6 +31,8 @@ class CoinService {
     }
 
 
+    
+
 
     // Service that always requires the server, Since the info for price always changes And you want too show the user up Too date info
     // There is no need too store this in the global state.
@@ -42,18 +44,51 @@ class CoinService {
         return coinInfo;
     }
 
-   
-    // The graph that is called every one second
-    public async getCoinGraph(coinSymbols: string){
-        const response = await axios.get<CoinCurrencyGraphModel>(appConfig.selectedCoinsValueUrl + coinSymbols);
-        const graphs = response.data
 
-        return graphs
+
+
+
+
+
+
+    // Live price feed. Unlike the services above there is no "response" to await --
+    // the socket stays open and Binance pushes a new price whenever it changes.
+    // The caller passes a callback that runs on every push, and gets back a function
+    // that closes the socket. The caller MUST call it when it no longer needs prices.
+    public subscribeToCoinPrices(coins: CoinModel[], onPrice: (graph: GraphModel) => void): () => void {
+
+        // Nothing selected -- no socket to open, but still return a no-op so the caller
+        // can always call the cleanup without checking.
+        if (coins.length === 0) return () => { };
+
+        // "btc" + "eth"  ->  "btcusdt@ticker/ethusdt@ticker"
+        const streams = coins
+            .map(coin => coin.symbol.toLowerCase() + "usdt@ticker")
+            .join("/");
+
+        const socket = new WebSocket(appConfig.priceSocketUrl + streams);
+
+        // Tracks whether the close was ours, so unmounting doesn't look like a failure.
+        let closedByUs = false;
+
+        socket.onmessage = event => {
+            // Sockets always deliver strings, never objects.
+            const socketData: GraphSocketData = JSON.parse(event.data);
+
+            // Turn Binance's { s, c } into our { coin, price }.
+            const graph = adaptGraph(socketData, coins);
+            if (graph) onPrice(graph);
+        };
+
+        socket.onerror = () => {
+            if (!closedByUs) notify.error("Lost connection to the live price feed.");
+        };
+
+        return () => {
+            closedByUs = true;
+            socket.close();
+        };
     }
-
-
-  
-
 
 
 

@@ -1,49 +1,74 @@
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import "./crypto-graph-list.css";
 import { AppState } from "../../../../redux/app-state";
 import { CoinModel } from "../../../../models/coin-model";
-import { coinService } from "../../../../services/coin-service";
-import { notify } from "../../../../utils/notify";
+import { useEffect, useState } from "react";
+import { GraphModel } from "../../../../models/graph-model";
 import { CryptoGraph } from "../crypto-graph/crypto-graph";
-import "./crypto-graph-list.css";
-import { appConfig } from "../../../../utils/app-config";
+import { coinService } from "../../../../services/coin-service";
 
-// The shape of the raw object coming from the API
-export type CoinCurrencyGraphModel = {
-    [coinSymbol: string]: {
-        USD: number;
-    }
-}
+
+
 
 export function CryptoGraphList() {
-    // Start with an empty object, not an array!
-    const [graphs, setGraphs] = useState<CoinCurrencyGraphModel>({});
 
-    // Pull the user's selections from global state
-    const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
+    const selectedCoins = useSelector<AppState, CoinModel[]>(state=> state.selectedCoins);
+    const [graph , setGraph] = useState<GraphModel[]>([]);
 
-    useEffect(() => {
-        if (selectedCoins.length === 0) return;
+    useEffect(()=>{
 
-        // Build the string: "BTC,ETH,BNB"
-        const symbolString = selectedCoins.map(c => c.symbol).join(",");
+        // Prices from the old socket belong to the old coins, so drop them.
+        setGraph([]);
 
-        coinService.getCoinGraph(appConfig.selectedCoinsValueUrl+symbolString)
-            .then(graphsObject => setGraphs(graphsObject))
-            .catch(err => notify.error(err.message));
+        const unsubscribe = coinService.subscribeToCoinPrices(selectedCoins, incoming => {
 
-    }, []); // Runs exactly once when this view loads!
+            // Callback form, because pushes arrive far faster than React re-renders --
+            // reading `graph` directly here would work off a stale array.
+            setGraph(current => {
+                const index = current.findIndex(g => g.coin.id === incoming.coin.id);
+                if (index < 0) return [...current, incoming];
+
+                const next = [...current];
+                next[index] = incoming;
+                return next;
+            });
+        });
+
+        // Runs on unmount, and before the effect re-runs when selectedCoins changes.
+        return unsubscribe;
+
+    },[selectedCoins])
+
+    // Rendering function to handle the conditional logic
+    const rendering = ()=> {
+
+        if (selectedCoins.length === 0) {
+            return (
+                <p className="graph-empty-state">
+                    You haven't selected any coins yet. Please go back to the home page and select coins to use this Reports page feature.
+                    Every coin you select gets a live graph here, updating in real time with its current market value.
+                </p>
+            );
+        }
+
+        return (
+            <>
+                <p className="graph-instruction-text">
+                    Below are live graphs for your selected coins. Each graph updates automatically as new market values arrive.
+                </p>
+                {graph.map(g=> <CryptoGraph key={g.coin.id} graph={g} />)}
+            </>
+        );
+    }
 
     return (
         <div className="CryptoGraphList">
-            {/* Object.entries breaks the main object down so React can render multiple graphs */}
-            {Object.entries(graphs).map(([symbol, value]) => (
-                <CryptoGraph
-                    key={symbol}
-                    symbol={symbol}
-                    price={value.USD}
-                />
-            ))}
+
+            <h1>Reports - current market value graphs</h1>
+
+            {/* Implementing the rendering function */}
+            {rendering()}
+
         </div>
     );
 }
