@@ -15,7 +15,7 @@ function initHundredCoinInfo(_currentState: CoinInfoModel[], action: PayloadActi
 
 
 export const coinsInfoSlice = createSlice({
-    name:"coins-info-slice",
+    name: "coins-info-slice",
     initialState: [] as CoinInfoModel[],
-    reducers:{initHundredCoinInfo}
+    reducers: { initHundredCoinInfo }
 })

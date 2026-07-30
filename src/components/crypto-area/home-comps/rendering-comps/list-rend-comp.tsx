@@ -23,7 +23,6 @@ export function ListRendComp() {
     const [coins, setCoins] = useState<CoinModel[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
-
     // 1. New state to track which direction the grid should swipe
     const [slideDirection, setSlideDirection] = useState<string>("slide-forward");
 
@@ -41,7 +40,6 @@ export function ListRendComp() {
     useEffect(() => {
         setCurrentPage(1);
     }, [currentSearch]);
-
 
     // --- Data Processing util ---
     const filteredCoins = useMemo(() => filterCoinsBySearch(coins, currentSearch), [coins, currentSearch]);

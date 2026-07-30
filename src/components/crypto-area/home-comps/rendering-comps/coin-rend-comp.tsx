@@ -4,7 +4,7 @@ import { AppState } from "../../../../redux/app-state";
 import { CoinModel } from "../../../../models/coin-model";
 import { CoinInfoModel } from "../../../../models/coin-info-model";
 import { coinService } from "../../../../services/coin-service";
-import { notify } from "../../../../utils/notify";
+
 import { CoinIdentityMicroComp, CoinProp } from "../micro-comps/coin-identity-micro-comp";
 import { CoinPricesMicroComp } from "../micro-comps/coin-prices-micro-comp";
 import "./coin-rend-comp.css";
@@ -23,15 +23,16 @@ export function CoinRendComp(props: CoinProp) {
     const [flag, setFlag] = useState<boolean>(false);
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
     const isSelected = selectedCoins.some(c => c.id === props.coin.id);
+    const hundredCoinsInfo = useSelector<AppState, CoinInfoModel[]>(state => state.coinsInfo);
 
     async function triggerInfo() {
         const isOpening = !flag;
         setFlag(isOpening);
 
         if (isOpening && !coinInfo) {
-            coinService.getCoinInfo(props.coin.id)
-                .then(coinInfo => setCoinInfo(coinInfo))
-                .catch(err => notify.error(err.message));
+
+            const singeCoinInfo = hundredCoinsInfo.find(c => c.id === props.coin.id);
+            setCoinInfo(singeCoinInfo);
         }
     }
 

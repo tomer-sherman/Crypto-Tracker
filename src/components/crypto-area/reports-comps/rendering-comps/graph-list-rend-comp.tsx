@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { GraphModel } from "../../../../models/graph-model";
 import { GraphRendComp } from "./graph-rend-comp";
 import { coinService } from "../../../../services/coin-service";
+import { notify } from "../../../../utils/notify";
 import "./graph-list-rend-comp.css";
 
 
@@ -21,10 +22,17 @@ export function GraphListRendComp() {
     const selectedCoins = useSelector<AppState, CoinModel[]>(state=> state.selectedCoins);
     const [graph , setGraph] = useState<GraphModel[]>([]);
 
+    // Whether what's on screen came out of the saved file instead of the live feed.
+    const [isBackup, setIsBackup] = useState(false);
+
     useEffect(()=>{
 
         // Prices from the old socket belong to the old coins, so drop them.
         setGraph([]);
+        setIsBackup(false);
+
+        // The effect can be torn down while the backup fetch is still in the air.
+        let cancelled = false;
 
         const unsubscribe = coinService.subscribeToCoinPrices(selectedCoins, incoming => {
 
@@ -38,10 +46,29 @@ export function GraphListRendComp() {
                 next[index] = incoming;
                 return next;
             });
+
+        }, async () => {
+
+            // No live feed. Rather than leave the page empty, fill it from the saved
+            // file -- one static price per coin, so the cards still have something to draw.
+            try {
+                const backup = await coinService.getBackupPrices(selectedCoins);
+                if (cancelled) return;
+
+                setGraph(backup);
+                setIsBackup(true);
+                notify.error("Live price feed is unavailable, showing saved prices instead.");
+            }
+            catch (err: any) {
+                if (!cancelled) notify.error(err);
+            }
         });
 
         // Runs on unmount, and before the effect re-runs when selectedCoins changes.
-        return unsubscribe;
+        return ()=> {
+            cancelled = true;
+            unsubscribe();
+        };
 
     },[selectedCoins])
 
@@ -59,9 +86,19 @@ export function GraphListRendComp() {
 
         return (
             <>
-                <p className="graph-instruction-text">
-                    Below are live graphs for your selected coins. Each graph updates automatically as new market values arrive.
-                </p>
+                {isBackup && (
+                    <p className="graph-backup-notice">
+                        The live price feed couldn't be reached, so these graphs are drawn from the last saved market values in US dollars.
+                        They won't move until the connection is back — reload the page to try again.
+                    </p>
+                )}
+
+                {!isBackup && (
+                    <p className="graph-instruction-text">
+                        Below are live graphs for your selected coins. Each graph updates automatically as new market values arrive.
+                    </p>
+                )}
+
                 {graph.map(g=> <GraphRendComp key={g.coin.id} graph={g} />)}
             </>
         );

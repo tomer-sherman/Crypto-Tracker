@@ -4,10 +4,10 @@ import { appConfig } from "../utils/app-config";
 import { store } from "../redux/store";
 import { hundredCoinsSlice } from "../redux/hundred-coin-slice";
 import { selectedCoinsSlice } from "../redux/selected-coins-slice";
-import { adaptCoinInfo, adaptCoinInfoList, CoinInfoApiData, CoinInfoModel } from "../models/coin-info-model";
 import { notify } from "../utils/notify";
 import { adaptGraph, GraphModel, GraphSocketData } from "../models/graph-model";
 import { coinsInfoSlice } from "../redux/coins-info-slice";
+import { adaptCoinBackup, adaptCoinInfo, CoinBackupApi, CoinInfoModel, CoinInfoModelApi } from "../models/coin-info-model";
 
 
 class CoinService {
@@ -21,10 +21,23 @@ class CoinService {
             return store.getState().hundredCoins;
         }
 
-        const response = await axios.get<CoinModel[]>(appConfig.hundredCoinsUrl);
-        const hundredCoins = response.data;
+        // The API can go down or rate-limit us, so a rejected call becomes null instead of throwing.
+        const response = await axios.get<CoinModel[]>(appConfig.hundredCoinsUrl).catch(() => null);
 
-        const coinsInfo = hundredCoins.map(c => c.id);
+        let hundredCoins = Array.isArray(response?.data) ? response.data : [];
+
+        // Nothing usable came back -- fall back to the local copy.
+        if (hundredCoins.length === 0) {
+            const backup = await axios.get<CoinModel[]>(appConfig.hundredCoinsBackupUrl);
+            hundredCoins = backup.data;
+            notify.error("Live coin data is unavailable, showing saved data instead.");
+        }
+
+        // Fetches the 100 coins info in one call:
+
+        const coinIdsString = hundredCoins.map(c => c.id).join(",");
+        this.initCoinInfo(coinIdsString);
+
 
 
 
@@ -36,33 +49,7 @@ class CoinService {
     }
 
 
-
-
-
-    // Service that always requires the server, Since the info for price always changes And you want too show the user up Too date info
-    // There is no need too store this in the global state.
-    public async getCoinInfo(coinId: string): Promise<CoinInfoModel> {
-
-        const response = await axios.get<CoinInfoApiData>(appConfig.hundredCoinsCurrencyUrl + "/" + coinId);
-
-        // Turn CoinGecko's nested { market_data: { current_price: { usd, eur, ils } } } into our flat model.
-        const coinInfo = adaptCoinInfo(response.data);
-
-        return coinInfo;
-    }
-
-
-
-
-
-
-
-
-    // Live price feed. Unlike the services above there is no "response" to await --
-    // the socket stays open and Binance pushes a new price whenever it changes.
-    // The caller passes a callback that runs on every push, and gets back a function
-    // that closes the socket. The caller MUST call it when it no longer needs prices.
-    public subscribeToCoinPrices(coins: CoinModel[], onPrice: (graph: GraphModel) => void): () => void {
+    public subscribeToCoinPrices(coins: CoinModel[], onPrice: (graph: GraphModel) => void, onFailure?: () => void): () => void {
 
         // Nothing selected -- no socket to open, but still return a no-op so the caller
         // can always call the cleanup without checking.
@@ -78,6 +65,17 @@ class CoinService {
         // Tracks whether the close was ours, so unmounting doesn't look like a failure.
         let closedByUs = false;
 
+        // A dead socket fires onerror AND onclose, so without this the caller
+        // gets told the feed died twice.
+        let reported = false;
+
+        // The service only says the feed is gone. What to show instead is the comp's call.
+        const reportFailure = () => {
+            if (closedByUs || reported) return;
+            reported = true;
+            onFailure?.();
+        };
+
         socket.onmessage = event => {
             // Sockets always deliver strings, never objects.
             const socketData: GraphSocketData = JSON.parse(event.data);
@@ -87,9 +85,10 @@ class CoinService {
             if (graph) onPrice(graph);
         };
 
-        socket.onerror = () => {
-            if (!closedByUs) notify.error("Lost connection to the live price feed.");
-        };
+        socket.onerror = reportFailure;
+
+        // Binance also just drops the socket on a stream it doesn't serve, with no error first.
+        socket.onclose = reportFailure;
 
         return () => {
             closedByUs = true;
@@ -98,10 +97,31 @@ class CoinService {
     }
 
 
+    // What the reports page draws when the socket never came up: the same saved file the
+    // coin list falls back on, read for its dollar prices.
+    public async getBackupPrices(coins: CoinModel[]): Promise<GraphModel[]> {
+
+        const response = await axios.get<CoinBackupApi[]>(appConfig.hundredCoinsBackupUrl);
+        const backupInfo = adaptCoinBackup(response.data);
+
+        const graphs: GraphModel[] = [];
+
+        for (const coin of coins) {
+            const info = backupInfo.find(item => item.id === coin.id);
+
+            // A coin the saved file never had gets no card, rather than a NaN chart.
+            if (!info) continue;
+
+            graphs.push({ coin: coin, price: info.usd });
+        }
+
+        return graphs;
+    }
+
 
 
     // Services which don't require The server!
-    public selectOneCoin(coin: CoinModel) {
+    public selectOneCoin(coin: CoinModel): void {
         try {
             const action = selectedCoinsSlice.actions.selectedCoin(coin);
             store.dispatch(action);
@@ -117,12 +137,11 @@ class CoinService {
     }
 
 
-
-
     public async initCoinInfo(coinIds: string): Promise<CoinInfoModel[]> {
 
-        const response = await axios.get<CoinInfoApiData[]>(appConfig.singleCoinUrl + coinIds);
-        const coinsInfo = adaptCoinInfoList(response.data);
+        console.log("Fetching Coin Info Data")
+        const response = await axios.get<CoinInfoModelApi>(appConfig.hundredCoinsCurrencyUrl + coinIds + "&vs_currencies=usd,eur,ils");
+        const coinsInfo = adaptCoinInfo(response.data);
 
 
         const action = coinsInfoSlice.actions.initHundredCoinInfo(coinsInfo);
