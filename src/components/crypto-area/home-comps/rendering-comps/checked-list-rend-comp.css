@@ -1,0 +1,287 @@
+/* ============================================================================
+   checked-list-rend-comp.css — the tracked-coins dropzone
+
+   Scoped to .CheckedCoinList, which is also the anchor
+   coin-chip-micro-comp.css uses for the chips that land inside it.
+
+   The .empty-state-wrapper block below is drawn by WelcomeNoteMicroComp, and
+   the .limit-warning by this comp itself. Note that markup nests
+   .empty-state-wrapper inside a second copy of itself.
+   Both are flex columns and only the inner one has multiple children, so the
+   outer simply centres the inner and the rules below work either way.
+   ============================================================================ */
+
+.CheckedCoinList {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto 36px;
+    display: flex;
+    justify-content: center;
+}
+
+/* ----------------------------------------------------------------------------
+   The dropzone panel
+
+   Previously locked to min-width: 1500px and height: 250px. The first forced a
+   horizontal scrollbar on anything smaller than a wide desktop, and the second
+   was too short for the five-line welcome text it had to hold, so the copy was
+   being clipped. It is fluid with a minimum height now.
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .coins-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    width: 100%;
+    max-width: 1500px;
+    min-height: 236px;
+    padding: 26px 30px 22px;
+
+    background:
+        radial-gradient(ellipse 70% 100% at 50% 0%, rgba(176, 38, 255, 0.14), transparent 70%),
+        linear-gradient(160deg, rgba(28, 14, 48, 0.55), rgba(10, 7, 20, 0.75));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+
+    border: 1px dashed rgba(176, 38, 255, 0.45);
+    border-radius: var(--ct-r-lg);
+
+    transition: border-color var(--ct-slow) ease, box-shadow var(--ct-slow) ease;
+    animation: ct-drop-breathe 3.4s ease-in-out infinite alternate;
+}
+
+@keyframes ct-drop-breathe {
+    from {
+        border-color: rgba(176, 38, 255, 0.28);
+        box-shadow:
+            inset 0 0 30px rgba(176, 38, 255, 0.05),
+            0 0 0 rgba(176, 38, 255, 0);
+    }
+
+    to {
+        border-color: rgba(176, 38, 255, 0.75);
+        box-shadow:
+            inset 0 0 46px rgba(176, 38, 255, 0.13),
+            0 0 34px -10px rgba(176, 38, 255, 0.55);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Chip row
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .cards-inner-layout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* Chips expand into place as they are added. The empty-state text is excluded,
+   otherwise it would be squeezed through a max-width on arrival.
+
+   backwards, not both: a forwards fill would leave the final `transform:
+   scale(1)` applied to the element forever, and an animated value outranks
+   every declaration in the cascade — which would silently kill the hover lift
+   these chips get from coin-chip-micro-comp.css. */
+.CheckedCoinList .cards-inner-layout> :not(.empty-state-wrapper) {
+    animation: ct-drop-chip-in 0.5s var(--ct-snap) backwards;
+}
+
+@keyframes ct-drop-chip-in {
+    from {
+        opacity: 0;
+        max-width: 0;
+        transform: scale(0.4);
+        margin: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-width: 220px;
+        transform: scale(1);
+    }
+}
+
+/* Sizing for the chips themselves. Two ancestor classes, so this outranks the
+   (0,2,0) base in coin-chip-micro-comp.css regardless of import order. */
+.CheckedCoinList .cards-inner-layout .CryptoCard {
+    width: 132px;
+    padding: 18px 14px;
+}
+
+/* ----------------------------------------------------------------------------
+   Empty state
+
+   Five paragraphs, all carrying the same class. The first is the welcome line
+   and is treated as the heading; the four numbered steps below it get the rail
+   and the hover lift.
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .empty-state-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.CheckedCoinList .empty-text {
+    max-width: 92ch;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    letter-spacing: 0.015em;
+    text-align: left;
+    color: #cdb4f0;
+
+    /* backwards so the finished animation does not pin transform to
+       translateX(0) and block the hover nudge further down */
+    animation: ct-drop-step-in 0.5s var(--ct-ease) backwards;
+}
+
+/* The welcome line */
+.CheckedCoinList .empty-text:first-child {
+    margin-bottom: 4px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+
+    background-image: linear-gradient(90deg, var(--ct-cyan), var(--ct-blue), var(--ct-violet));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 14px rgba(176, 38, 255, 0.4));
+    animation:
+        ct-drop-step-in 0.5s var(--ct-ease) backwards,
+        ct-drop-title-flow 5s linear infinite;
+}
+
+@keyframes ct-drop-title-flow {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* The four numbered steps */
+.CheckedCoinList .empty-text:not(:first-child) {
+    padding-left: 14px;
+    border-left: 2px solid rgba(176, 38, 255, 0.35);
+    color: #c4b0dd;
+
+    transition: color var(--ct-quick) ease, border-color var(--ct-quick) ease,
+        transform var(--ct-quick) var(--ct-ease);
+}
+
+.CheckedCoinList .empty-text:not(:first-child):hover {
+    color: #f0e6ff;
+    border-left-color: var(--ct-cyan);
+    transform: translateX(4px);
+}
+
+/* Staggered arrival, one line after the next */
+.CheckedCoinList .empty-text:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.CheckedCoinList .empty-text:nth-child(2) {
+    animation-delay: 0.13s;
+}
+
+.CheckedCoinList .empty-text:nth-child(3) {
+    animation-delay: 0.21s;
+}
+
+.CheckedCoinList .empty-text:nth-child(4) {
+    animation-delay: 0.29s;
+}
+
+.CheckedCoinList .empty-text:nth-child(5) {
+    animation-delay: 0.37s;
+}
+
+@keyframes ct-drop-step-in {
+    from {
+        opacity: 0;
+        transform: translateX(-14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Limit notice
+   ---------------------------------------------------------------------------- */
+.CheckedCoinList .limit-warning {
+    flex-shrink: 0;
+    padding: 7px 18px;
+    border-radius: var(--ct-r-pill);
+
+    font-family: var(--ct-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-align: center;
+    color: var(--ct-dim);
+
+    background: rgba(176, 38, 255, 0.07);
+    border: 1px solid rgba(176, 38, 255, 0.28);
+
+    animation: ct-drop-warn 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes ct-drop-warn {
+    from {
+        border-color: rgba(176, 38, 255, 0.18);
+        box-shadow: 0 0 0 rgba(176, 38, 255, 0);
+    }
+
+    to {
+        border-color: rgba(176, 38, 255, 0.6);
+        box-shadow: 0 0 18px -4px rgba(176, 38, 255, 0.6);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .CheckedCoinList .coins-dropzone {
+        padding: 20px 16px 18px;
+        min-height: 0;
+    }
+
+    .CheckedCoinList .empty-text {
+        font-size: 0.86rem;
+    }
+
+    .CheckedCoinList .empty-text:first-child {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+    }
+
+    .CheckedCoinList .cards-inner-layout .CryptoCard {
+        width: 112px;
+        padding: 14px 10px;
+    }
+
+    .CheckedCoinList .limit-warning {
+        font-size: 0.64rem;
+        letter-spacing: 0.05em;
+    }
+}

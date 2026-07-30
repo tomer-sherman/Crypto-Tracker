@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { AiInsightList } from "../../crypto-area/ai-page-crypto-comps/ai-insight-list/ai-insight-list";
+import { InsightListRendComp } from "../../crypto-area/ai-reccomendation-comps/rendering-comps/insight-list-rend-comp";
 import { AppState } from "../../../redux/app-state";
 import { CoinModel } from "../../../models/coin-model";
 import "./recommendation.css"
@@ -23,7 +23,7 @@ export function Recommendation() {
                 <p className="instruction-text">
                     Click the <strong>Get AI Insight</strong> button on any card below to generate a detailed analysis.
                 </p>
-                <AiInsightList />
+                <InsightListRendComp />
             </>
         );
     };

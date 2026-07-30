@@ -1,26 +1,22 @@
-import { useSelector } from "react-redux";
-import { CheckedCoinList } from "../../crypto-area/homepage-crypto-comps/checked-coin-list/checked-coin-list";
-import { CryptoList } from "../../crypto-area/homepage-crypto-comps/crypto-list/crypto-list";
-import { ValidationDialog } from "../../crypto-area/homepage-crypto-comps/validation-dialog/validation-dialog";
+import { CheckedListRendComp } from "../../crypto-area/home-comps/rendering-comps/checked-list-rend-comp";
+import { ListRendComp } from "../../crypto-area/home-comps/rendering-comps/list-rend-comp";
 import "./home.css";
-import { AppState } from "../../../redux/app-state";
 
 export function Home() {
-    const coinCount = useSelector<AppState, number>(state => state.selectedCoins.length);
 
     return (
         <div className="Home">
-            {coinCount === 6 && <ValidationDialog />}
 
             {/* Added a class name to the header */}
             <h1 className="home-title">TOP 100 CRYPTO COINS</h1>
 
-            {/* Wrapped the list so we can scale it down cleanly */}
+            {/* Wrapped the list so we can scale it down cleanly.
+                The dropzone also owns the "maximum reached" dialog now. */}
             <div className="checked-list-wrapper">
-                <CheckedCoinList />
+                <CheckedListRendComp />
             </div>
 
-            <CryptoList />
+            <ListRendComp />
         </div>
     );
 }

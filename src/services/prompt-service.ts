@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AiCoinInfoModel } from "../models/ai-info-model";
+import { adaptAiInfo, AiInfoApiData, AiInfoModel } from "../models/ai-info-model";
 import { gptService } from "./gpt-service";
 import { appConfig } from "../utils/app-config";
 import { notify } from "../utils/notify";
@@ -19,12 +19,12 @@ class PromptService {
         Use this info below to give an accurate answer:
 
         Coin name: ${info.name}
-        Current price: ${info.market_data.current_price.usd},
-        Market cap: ${info.market_data.market_cap.usd},
-        Total volume of trade in the last 24h: ${info.market_data.total_volume.usd},
-        Price change percentage in the last 30 days in usd: ${info.market_data.price_change_percentage_30d_in_currency.usd},
-        Price change percentage in the last 60 days in usd: ${info.market_data.price_change_percentage_60d_in_currency.usd},
-        Price change percentage in the last 200 days in usd: ${info.market_data.price_change_percentage_200d_in_currency.usd},
+        Current price: ${info.price},
+        Market cap: ${info.marketCap},
+        Total volume of trade in the last 24h: ${info.volume24h},
+        Price change percentage in the last 30 days in usd: ${info.change30d},
+        Price change percentage in the last 60 days in usd: ${info.change60d},
+        Price change percentage in the last 200 days in usd: ${info.change200d},
             
         Return your answers as the json below:
          {"answer" : "Yes you should totally buy this coin || No you should't buy this coin" ,"description": "here you write you'r paragraph"}
@@ -44,10 +44,12 @@ class PromptService {
     }
 
 
-    private async getAiInfo(coinId: string): Promise<AiCoinInfoModel> {
+    private async getAiInfo(coinId: string): Promise<AiInfoModel> {
 
-        const response = await axios.get<AiCoinInfoModel>(appConfig.singleCoinUrl + "/" + coinId);
-        const coinInfo = response.data;
+        const response = await axios.get<AiInfoApiData>(appConfig.singleCoinUrl + "/" + coinId);
+
+        // Turn CoinGecko's nested { market_data: { current_price: { usd } } } into our flat model.
+        const coinInfo = adaptAiInfo(response.data);
 
         return coinInfo;
     }

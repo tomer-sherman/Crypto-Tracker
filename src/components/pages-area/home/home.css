@@ -5,9 +5,11 @@
 
    One constraint worth stating: .Home must never end up with a transform, and
    nothing here may leave one behind through a forwards-filled animation. The
-   ValidationDialog is a position: fixed child of this element, and a transform
-   on an ancestor would make .Home its containing block — which would quietly
-   break the modal's full-screen backdrop.
+   ValidationDialogRendComp modal is a position: fixed element mounted further
+   down this subtree — inside CheckedListRendComp, under .checked-list-wrapper —
+   and a transform on any ancestor would make that ancestor its containing
+   block, which would quietly break the modal's full-screen backdrop. That is
+   also why .checked-list-wrapper below stays a plain spacing element.
    ============================================================================ */
 
 .Home {

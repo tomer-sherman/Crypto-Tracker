@@ -1,5 +1,5 @@
 
-import { CryptoGraphList } from "../../crypto-area/reportpage-crypto-comps/crypto-graph-list/crypto-graph-list";
+import { GraphListRendComp } from "../../crypto-area/reports-comps/rendering-comps/graph-list-rend-comp";
 import "./reports.css";
 
 export function Reports() {
@@ -7,7 +7,7 @@ export function Reports() {
         <div className="Reports">
 
             <p>Here sits the Reports page</p>
-            <CryptoGraphList />
+            <GraphListRendComp />
 
         </div>
     );

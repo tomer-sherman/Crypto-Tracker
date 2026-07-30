@@ -2,7 +2,7 @@
    crypto-card-skeleton.css — placeholder for a coin tile
 
    Scoped to .CryptoCardSkeleton. The box model mirrors the real tile in
-   crypto-card.css so the grid does not jump when the data lands.
+   coin-rend-comp.css so the grid does not jump when the data lands.
 
    The inner grey blocks are sized by inline styles in the TSX, so only the
    frame and the wrapper placement are set here.

@@ -1,7 +1,7 @@
 /* ============================================================================
    reports.css — the live reports page
 
-   Scoped to .Reports. The page itself is only a wrapper: CryptoGraphList
+   Scoped to .Reports. The page itself is only a wrapper: GraphListRendComp
    supplies the heading, the copy and the charts.
 
    The single <p> here is a leftover line of placeholder text sitting above that

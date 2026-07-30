@@ -11,6 +11,8 @@ return newState;
 }
 
 
+
+
 export const hundredCoinsSlice = createSlice({
     name: "hundred-coins-slice",
     initialState: [] as CoinModel[],
