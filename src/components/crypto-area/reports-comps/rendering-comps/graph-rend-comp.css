@@ -1,9 +1,9 @@
 /* ============================================================================
-   graph-rend-comp.css — one coin's live candlestick card
+   graph-rend-comp.css — one coin's live price card
 
    Every selector starts at .CryptoGraph, so nothing here escapes the card.
    That includes the readout and the SVG further down, which are drawn by
-   GraphReadoutMicroComp and CandleChartMicroComp — neither carries a
+   GraphReadoutMicroComp and PriceChartMicroComp — neither carries a
    stylesheet, so their rules stay anchored to this card.
    ============================================================================ */
 
@@ -140,9 +140,16 @@
     text-shadow: 0 0 20px rgba(234, 57, 67, 0.4);
 }
 
+/* Row under the price: the session change, and the source badge when there is one */
+.CryptoGraph .graph-readout-tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 /* Session change pill */
 .CryptoGraph .graph-change {
-    align-self: flex-start;
     padding: 3px 11px;
     border-radius: var(--ct-r-pill);
 
@@ -162,6 +169,113 @@
 .CryptoGraph .graph-change.down {
     color: var(--ct-down);
     background: rgba(234, 57, 67, 0.11);
+    border: 1px solid rgba(234, 57, 67, 0.35);
+}
+
+/* ----------------------------------------------------------------------------
+   Card states
+
+   Every card is drawn identically — same line, same one-a-second rhythm —
+   because the data is genuinely the same shape whichever feed produced it. The
+   only thing separating them is colour, and each colour matches the line in the
+   copy above the stack that is talking about it: green for real market data,
+   amber for a simulated price, red for a coin with nothing to draw.
+
+   `.simulated` in particular is deliberately loud. A made-up price on a chart
+   that looks exactly like a real one is the single thing on this page that could
+   mislead someone, so it is marked on the border, on the label, and on a badge.
+   ---------------------------------------------------------------------------- */
+
+/* Real market data */
+.CryptoGraph.live {
+    border-color: rgba(22, 199, 132, 0.26);
+}
+
+.CryptoGraph.live:hover {
+    border-color: rgba(22, 199, 132, 0.5);
+    box-shadow: var(--ct-shadow-lg), 0 0 26px rgba(22, 199, 132, 0.14);
+}
+
+.CryptoGraph.live .graph-label {
+    color: rgba(120, 230, 185, 0.75);
+}
+
+/* Simulated */
+.CryptoGraph.simulated {
+    border-color: rgba(255, 176, 32, 0.28);
+}
+
+.CryptoGraph.simulated:hover {
+    border-color: rgba(255, 176, 32, 0.5);
+    box-shadow: var(--ct-shadow-lg), 0 0 26px rgba(255, 176, 32, 0.14);
+}
+
+/* Overrides the animated cyan-violet sweep the card carries by default */
+.CryptoGraph.simulated::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 176, 32, 0.75), transparent);
+    animation: none;
+}
+
+.CryptoGraph.simulated .graph-label {
+    color: rgba(255, 205, 120, 0.75);
+}
+
+/* No price anywhere to draw */
+.CryptoGraph.unavailable {
+    border-color: rgba(234, 57, 67, 0.26);
+}
+
+.CryptoGraph.unavailable::before {
+    background: linear-gradient(90deg, transparent, rgba(234, 57, 67, 0.6), transparent);
+    animation: none;
+}
+
+.CryptoGraph.unavailable .graph-label {
+    color: rgba(240, 140, 145, 0.75);
+}
+
+/* Neither of these has a number worth colouring: one has not arrived yet and the
+   other never will, so both drop the up/down tint the readout would otherwise
+   apply to a placeholder. */
+.CryptoGraph.pending .graph-price,
+.CryptoGraph.unavailable .graph-price {
+    color: var(--ct-faint);
+    text-shadow: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Source badge
+
+   Carried by every card, not only the simulated ones. A badge that appeared
+   solely on made-up data would leave "this is real" as something the user has
+   to infer from the absence of a warning.
+   ---------------------------------------------------------------------------- */
+.CryptoGraph .graph-source {
+    padding: 3px 11px;
+    border-radius: var(--ct-r-pill);
+
+    font-family: var(--ct-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.CryptoGraph .graph-source.live {
+    color: rgba(120, 230, 185, 0.95);
+    background: rgba(22, 199, 132, 0.1);
+    border: 1px solid rgba(22, 199, 132, 0.4);
+}
+
+.CryptoGraph .graph-source.simulated {
+    color: rgba(255, 205, 120, 0.92);
+    background: rgba(255, 176, 32, 0.08);
+    border: 1px solid rgba(255, 176, 32, 0.35);
+}
+
+.CryptoGraph .graph-source.unavailable {
+    color: rgba(240, 140, 145, 0.92);
+    background: rgba(234, 57, 67, 0.08);
     border: 1px solid rgba(234, 57, 67, 0.35);
 }
 
@@ -211,6 +325,13 @@
     }
 }
 
+/* Not a wait but an answer, so it holds still and takes the colour of the
+   card it is sitting in */
+.CryptoGraph .graph-waiting.none {
+    color: rgba(240, 140, 145, 0.75);
+    animation: none;
+}
+
 /* ----------------------------------------------------------------------------
    Axes and grid
    ---------------------------------------------------------------------------- */
@@ -229,52 +350,73 @@
 }
 
 /* ----------------------------------------------------------------------------
-   Candles
+   The line, its fill, and the reading dots
+
+   Coloured by the direction of the whole session rather than of the last step,
+   so the chart keeps one identity while it is being read instead of flickering
+   between two every time a second goes the other way. The class carrying that
+   direction sits on the <svg>, which is why every rule here reaches through it.
    ---------------------------------------------------------------------------- */
-.CryptoGraph .graph-candle .graph-wick {
-    stroke-width: 1.5;
+.CryptoGraph .graph-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
 }
 
-.CryptoGraph .graph-candle .graph-body {
-    rx: 1.5;
-    transition: filter var(--ct-quick) ease;
-}
-
-.CryptoGraph .graph-candle.up .graph-wick {
+.CryptoGraph .graph-svg.up .graph-line {
     stroke: var(--ct-up);
+    filter: drop-shadow(0 0 6px rgba(22, 199, 132, 0.45));
 }
 
-.CryptoGraph .graph-candle.up .graph-body {
-    fill: var(--ct-up);
-    filter: drop-shadow(0 0 5px rgba(22, 199, 132, 0.4));
-}
-
-.CryptoGraph .graph-candle.down .graph-wick {
+.CryptoGraph .graph-svg.down .graph-line {
     stroke: var(--ct-down);
+    filter: drop-shadow(0 0 6px rgba(234, 57, 67, 0.45));
 }
 
-.CryptoGraph .graph-candle.down .graph-body {
+/* Gradient stops, set here rather than on the element so the colour lives with
+   the rest of the card's colour */
+.CryptoGraph .graph-svg.up .graph-fill-top {
+    stop-color: var(--ct-up);
+    stop-opacity: 0.28;
+}
+
+.CryptoGraph .graph-svg.down .graph-fill-top {
+    stop-color: var(--ct-down);
+    stop-opacity: 0.28;
+}
+
+.CryptoGraph .graph-fill-bottom {
+    stop-color: transparent;
+    stop-opacity: 0;
+}
+
+.CryptoGraph .graph-area {
+    stroke: none;
+}
+
+/* One per reading. Small enough that sixty of them read as a beaded line rather
+   than as clutter, but present on every single second — which is the whole
+   point, because a second where the price held still has nothing else to show
+   for itself. */
+.CryptoGraph .graph-point {
+    stroke: none;
+    transition: r var(--ct-quick) ease, filter var(--ct-quick) ease;
+}
+
+.CryptoGraph .graph-svg.up .graph-point {
+    fill: var(--ct-up);
+}
+
+.CryptoGraph .graph-svg.down .graph-point {
     fill: var(--ct-down);
-    filter: drop-shadow(0 0 5px rgba(234, 57, 67, 0.4));
 }
 
-.CryptoGraph .graph-candle:hover .graph-body {
-    filter: brightness(1.4) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
-}
-
-/* The newest candle keeps breathing, so the chart reads as live */
-.CryptoGraph .graph-candle.latest .graph-body {
-    animation: ct-graph-latest 1.6s ease-in-out infinite alternate;
-}
-
-@keyframes ct-graph-latest {
-    from {
-        opacity: 0.7;
-    }
-
-    to {
-        opacity: 1;
-    }
+/* Generous hover target: the dot itself is under 2px across, so growing it on
+   hover is what makes the reading tooltip reachable at all. */
+.CryptoGraph .graph-point:hover {
+    r: 4.5;
+    filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
 }
 
 /* ----------------------------------------------------------------------------

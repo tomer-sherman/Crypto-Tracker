@@ -4,10 +4,10 @@
    Scoped to .Reports. The page itself is only a wrapper: GraphListRendComp
    supplies the heading, the copy and the charts.
 
-   The single <p> here is a leftover line of placeholder text sitting above that
-   heading. Rather than leave it as loose body copy in the middle of the layout,
-   it is dressed as a small status eyebrow, which is a shape the page already
-   has a use for.
+   The single <p> here is the page's own status eyebrow — the rhythm the body
+   below runs on, said once above the heading. Dressed as a pill with a pulsing
+   dot rather than left as loose body copy, so it reads as a status rather than
+   as the first sentence of the page.
    ============================================================================ */
 
 .Reports {

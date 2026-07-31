@@ -1,116 +1,200 @@
 import { useSelector } from "react-redux";
 import { AppState } from "../../../../redux/app-state";
 import { CoinModel } from "../../../../models/coin-model";
-import { useEffect, useState } from "react";
-import { GraphModel } from "../../../../models/graph-model";
+import { useEffect, useRef, useState } from "react";
+import { GraphModel, GraphSource } from "../../../../models/graph-model";
 import { GraphRendComp } from "./graph-rend-comp";
+import { GraphNoticeMicroComp } from "../micro-comps/graph-notice-micro-comp";
+import { MAX_TICKS } from "../micro-comps/price-chart-micro-comp";
+import { appendTick, Tick } from "../../../../utils/tick-math";
 import { coinService } from "../../../../services/coin-service";
 import { notify } from "../../../../utils/notify";
 import "./graph-list-rend-comp.css";
 
 
+// How often the page reads the feeds and draws, which is also how much time one
+// point on a chart covers. One number, because "a reading a second" and "a point
+// a second" are the same statement.
+const TICK_MS = 1000;
+
+
 /* ============================================================================
    Rendering comp — LIST side. The reports page body.
 
-   Owns the one socket the page runs on: it opens a subscription for whatever
-   is currently tracked, keeps the newest price per coin, and tears the
-   subscription down again the moment the selection changes. Each card it
-   renders then handles its own chart.
+   Owns two things: the feeds, and the clock.
+
+   The feeds it opens through the service — it reads the starting prices, hands
+   them over, and takes back a stream of prices for whatever is currently
+   tracked, tearing the whole thing down again when the selection changes.
+
+   The clock is the reason this comp exists in this shape. The feeds push far
+   faster than anything needs to be drawn, and pushing every one of those
+   straight into state would re-render five charts twenty times a second to show
+   movement no one asked to see. So prices land in a ref, which does not
+   re-render, and once a second the clock takes a snapshot of it and grows every
+   coin's chart by one point. Everything between two snapshots is dropped unread.
+   That is both the throttle and the feature: the page shows the newest price,
+   once a second, and nothing else.
+
+   One clock rather than one per card, so every chart lands on the same second
+   and the stack reads as one moment rather than five that drifted apart. The
+   cards below hold no state and run no timers at all — they are handed a
+   finished list of readings and draw it.
+
+   Which coins ended up on the live feed and which fell back to a stand-in is the
+   service's business, not this comp's. All this side does is notice how the
+   split came out and hand it to the copy above the cards.
    ============================================================================ */
 export function GraphListRendComp() {
 
-    const selectedCoins = useSelector<AppState, CoinModel[]>(state=> state.selectedCoins);
-    const [graph , setGraph] = useState<GraphModel[]>([]);
+    const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
 
-    // Whether what's on screen came out of the saved file instead of the live feed.
-    const [isBackup, setIsBackup] = useState(false);
+    // Every price the feeds push, newest per coin. A ref and not state on purpose:
+    // writing to it does NOT re-render, so the flood of pushes stays invisible.
+    const latest = useRef(new Map<string, GraphModel>());
 
-    useEffect(()=>{
+    // What the readouts show: a snapshot of the map above, replaced once a second.
+    // Nothing else on this page re-renders on a timer.
+    const [graphs, setGraphs] = useState<GraphModel[]>([]);
 
-        // Prices from the old socket belong to the old coins, so drop them.
-        setGraph([]);
-        setIsBackup(false);
+    // What the charts draw: one rolling history per coin, grown by the same clock
+    // that takes the snapshot, so a card's number and the head of its line are
+    // always the same reading.
+    const [ticks, setTicks] = useState(new Map<string, Tick[]>());
 
-        // The effect can be torn down while the backup fetch is still in the air.
+    useEffect(() => {
+
+        // The effect can be torn down while the seed fetch is still in the air, so
+        // both the fetch and the subscription that follows it need something to check.
         let cancelled = false;
+        let unsubscribe = () => { };
 
-        const unsubscribe = coinService.subscribeToCoinPrices(selectedCoins, incoming => {
+        const start = async () => {
 
-            // Callback form, because pushes arrive far faster than React re-renders --
-            // reading `graph` directly here would work off a stale array.
-            setGraph(current => {
-                const index = current.findIndex(g => g.coin.id === incoming.coin.id);
-                if (index < 0) return [...current, incoming];
+            // Read the starting prices before opening anything. A coin the feed
+            // turns out to refuse needs its price the instant that becomes clear,
+            // and fetching it only once that happens would leave the card blank
+            // through the round trip.
+            let seeds: GraphModel[] = [];
 
-                const next = [...current];
-                next[index] = incoming;
+            try {
+                seeds = await coinService.getSeedPrices(selectedCoins);
+            }
+            catch (err: any) {
+                // Seeds are the last line of defence, so a failure here only costs
+                // the coins the feed refuses -- the rest still go live.
+                notify.error(err);
+            }
+
+            if (cancelled) return;
+
+            // Straight into the ref. Nothing re-renders here; the clock below is
+            // what decides when any of this reaches the screen.
+            unsubscribe = coinService.subscribeToCoinPrices(selectedCoins, seeds, incoming => {
+                latest.current.set(incoming.coin.id, incoming);
+            });
+        };
+
+        start();
+
+        const clock = window.setInterval(() => {
+
+            const snapshot = selectedCoins
+                .map(coin => latest.current.get(coin.id))
+                .filter((graph): graph is GraphModel => !!graph);
+
+            // Which second every card on the page is about to draw. Worked out once
+            // here so they cannot land in different buckets.
+            const bucket = Math.floor(Date.now() / TICK_MS) * TICK_MS;
+
+            setTicks(current => {
+
+                // Rebuilt from the selection rather than edited in place, so a coin
+                // the user has since dropped takes its history with it.
+                const next = new Map<string, Tick[]>();
+
+                for (const coin of selectedCoins) {
+
+                    const history = current.get(coin.id) ?? [];
+                    const graph = snapshot.find(item => item.coin.id === coin.id);
+
+                    // Nothing usable this second: the feed has not spoken yet, or it
+                    // has said there is no price to be had. The history is carried
+                    // over untouched rather than dropped.
+                    if (!graph || graph.source === "unavailable" || !graph.price || isNaN(graph.price)) {
+                        next.set(coin.id, history);
+                        continue;
+                    }
+
+                    // A reading whether the price moved or not -- a second that
+                    // repeats the last number is still a second that happened.
+                    next.set(coin.id, appendTick(history, graph.price, bucket, MAX_TICKS));
+                }
+
                 return next;
             });
 
-        }, async () => {
+            // Set alongside the readings, so a card never shows a new number
+            // against a chart that has not caught up with it.
+            setGraphs(snapshot);
 
-            // No live feed. Rather than leave the page empty, fill it from the saved
-            // file -- one static price per coin, so the cards still have something to draw.
-            try {
-                const backup = await coinService.getBackupPrices(selectedCoins);
-                if (cancelled) return;
-
-                setGraph(backup);
-                setIsBackup(true);
-                notify.error("Live price feed is unavailable, showing saved prices instead.");
-            }
-            catch (err: any) {
-                if (!cancelled) notify.error(err);
-            }
-        });
+        }, TICK_MS);
 
         // Runs on unmount, and before the effect re-runs when selectedCoins changes.
-        return ()=> {
+        return () => {
             cancelled = true;
+            window.clearInterval(clock);
             unsubscribe();
         };
 
-    },[selectedCoins])
+    }, [selectedCoins]);
 
-    // Rendering function to handle the conditional logic
-    const rendering = ()=> {
 
-        if (selectedCoins.length === 0) {
-            return (
-                <p className="graph-empty-state">
-                    You haven't selected any coins yet. Please go back to the home page and select coins to use this Reports page feature.
-                    Every coin you select gets a live graph here, updating in real time with its current market value.
-                </p>
-            );
-        }
+    /* How the selection split. Read off the prices the cards are actually drawing
+       rather than tracked alongside them, so the sentence above the stack can
+       never claim something the charts below it contradict.
 
-        return (
-            <>
-                {isBackup && (
-                    <p className="graph-backup-notice">
-                        The live price feed couldn't be reached, so these graphs are drawn from the last saved market values in US dollars.
-                        They won't move until the connection is back — reload the page to try again.
-                    </p>
-                )}
+       Filtered out of selectedCoins rather than out of the prices, so the names
+       are listed in the order the cards are stacked in — the arrival order the
+       feeds produce them in is meaningless to anyone reading the page. */
+    const inBucket = (source: GraphSource) => selectedCoins.filter(coin =>
+        graphs.find(graph => graph.coin.id === coin.id)?.source === source);
 
-                {!isBackup && (
-                    <p className="graph-instruction-text">
-                        Below are live graphs for your selected coins. Each graph updates automatically as new market values arrive.
-                    </p>
-                )}
+    const live = inBucket("live");
+    const simulated = inBucket("simulated");
+    const unavailable = inBucket("unavailable");
 
-                {graph.map(g=> <GraphRendComp key={g.coin.id} graph={g} />)}
-            </>
-        );
-    }
+    /* Whether every tracked coin has been judged yet — the one condition the
+       whole page waits on.
+
+       The feeds settle coins one at a time over the first few seconds, and the
+       page used to show each one the instant it landed: a card appearing on its
+       own and shoving the rest down, the copy above them rewriting itself on
+       every arrival. Nothing there was wrong, it just never held still long
+       enough to be read.
+
+       So nothing is shown until everything can be. The wait is bounded by the
+       service — a coin the feed stays quiet about is written off and moved onto
+       a stand-in rather than left hanging, so this always comes true. */
+    const ready = selectedCoins.length > 0
+        && selectedCoins.every(coin => graphs.some(graph => graph.coin.id === coin.id));
+
 
     return (
         <div className="CryptoGraphList">
 
             <h1>Reports - current market value graphs</h1>
 
-            {/* Implementing the rendering function */}
-            {rendering()}
+            <GraphNoticeMicroComp selected={selectedCoins} ready={ready}
+                live={live} simulated={simulated} unavailable={unavailable} />
+
+            {/* All of them or none of them, drawn in selection order. Held back
+                as one block rather than per card, so the stack arrives already
+                complete instead of building itself down the page. */}
+            {ready && selectedCoins.map(coin => (
+                <GraphRendComp key={coin.id} coin={coin} ticks={ticks.get(coin.id) ?? []}
+                    graph={graphs.find(graph => graph.coin.id === coin.id) ?? null} />
+            ))}
 
         </div>
     );

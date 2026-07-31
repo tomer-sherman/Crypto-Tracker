@@ -6,7 +6,10 @@ export function Reports() {
     return (
         <div className="Reports">
 
-            <p>Here sits the Reports page</p>
+            {/* The page's one line of its own: what the body below is doing, and how
+                often. Everything else on this page belongs to the list comp. */}
+            <p>Live · one reading every second</p>
+
             <GraphListRendComp />
 
         </div>
