@@ -1,3 +1,9 @@
+/*
+    This file is one AI insight card for a single coin.
+    It shows the coin chip and a button that asks the AI service for advice about it.
+    While the request runs the button is disabled, and pressing Close plays the exit animation before the answer is removed.
+*/
+
 import { useState } from "react";
 import { AiAnswerModel } from "../../../../models/ai-answer-model";
 import { notify } from "../../../../utils/notify";
@@ -7,21 +13,17 @@ import { CoinProp } from "../../home-comps/micro-comps/coin-identity-micro-comp"
 import { AiAnswerMicroComp } from "../micro-comps/ai-answer-micro-comp";
 import "./insight-rend-comp.css";
 
-/* ============================================================================
-   Rendering comp — CHILD side. One coin's AI analysis.
-
-   Every card asks the model on its own, so the button, the request, the
-   loading state and the two-step close all belong here. The answer is not
-   dropped the moment Close is pressed: the panel is asked to play its exit
-   first and only unmounts once it says the animation has ended.
-   ============================================================================ */
+// One AI insight card for a coin
 export function InsightRendComp(props: CoinProp) {
+    // Holds the answer the AI returned
     const [aiAnswer, setAiAnswer] = useState<AiAnswerModel | null>(null);
+    // Tells if the request is still running
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // NEW: State to track when the card is currently animating out
+    // Tells if the panel is animating out
     const [isClosing, setIsClosing] = useState<boolean>(false);
 
+    // Asks the AI service about one coin
     async function getAiInsight(coinId: string) {
         try {
             setIsLoading(true);
@@ -34,20 +36,20 @@ export function InsightRendComp(props: CoinProp) {
         }
     }
 
+    // Opens the answer or starts closing it
     function handleAction() {
         if (aiAnswer) {
-            // Instead of setting to null immediately, trigger the closing animation
             setIsClosing(true);
         } else {
             getAiInsight(props.coin.id);
         }
     }
 
-    // NEW: This fires automatically when the CSS animation finishes
+    // Removes the answer after the animation
     function handleAnimationEnd() {
         if (isClosing) {
-            setAiAnswer(null);    // Now we safely remove it from the DOM
-            setIsClosing(false);  // Reset the closing state
+            setAiAnswer(null);
+            setIsClosing(false);
         }
     }
 
@@ -57,7 +59,6 @@ export function InsightRendComp(props: CoinProp) {
 
             <button
                 onClick={handleAction}
-                /* Disable the button while loading OR while the closing animation plays */
                 disabled={isLoading || isClosing}
                 className={aiAnswer && !isClosing ? "close-mode" : ""}
             >

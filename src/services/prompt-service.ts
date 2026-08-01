@@ -1,3 +1,10 @@
+/*
+    This file asks the AI whether a coin is worth buying. It first fetches the coin's
+    market numbers from the API, then builds a prompt out of them and sends it to the
+    gpt service. The answer comes back as json text, gets cleaned up, and is returned
+    to the page that asked for it.
+*/
+
 import axios from "axios";
 import { adaptAiInfo, AiInfoApiData, AiInfoModel } from "../models/ai-info-model";
 import { gptService } from "./gpt-service";
@@ -8,6 +15,7 @@ import { AiAnswerModel } from "../models/ai-answer-model";
 import { jsonSanitizer } from "../utils/json-sanitizer";
 
 class PromptService {
+    // Gets an AI opinion on one coin
     public async getAiInsight(coinId: string): Promise<AiAnswerModel | void> {
 
         try {
@@ -44,11 +52,11 @@ class PromptService {
     }
 
 
+    // Fetches the market numbers for one coin
     private async getAiInfo(coinId: string): Promise<AiInfoModel> {
 
         const response = await axios.get<AiInfoApiData>(appConfig.singleCoinUrl + "/" + coinId);
 
-        // Turn CoinGecko's nested { market_data: { current_price: { usd } } } into our flat model.
         const coinInfo = adaptAiInfo(response.data);
 
         return coinInfo;

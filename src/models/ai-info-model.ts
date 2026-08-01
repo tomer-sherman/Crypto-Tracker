@@ -1,4 +1,10 @@
-// 1. The Messy Api Type (Data Transfer Object)
+/*
+    This file holds the coin data that gets handed to the AI.
+    It has the messy shape the market API returns and a clean shape the app prefers,
+    with only the price and the change numbers the AI needs. A small adapter function
+    turns the messy shape into the clean one.
+*/
+
 export type AiInfoApiData = {
     name: string;
     market_data: {
@@ -11,7 +17,6 @@ export type AiInfoApiData = {
     };
 };
 
-// 2. The Clean App Type (Domain Model)
 export type AiInfoModel = {
     name: string;
     price: number;
@@ -22,7 +27,7 @@ export type AiInfoModel = {
     change200d: number;
 };
 
-// 3. The Adapter Function
+// Turns the API data into the clean model
 export const adaptAiInfo = (data: AiInfoApiData): AiInfoModel => {
 
     const market = data.market_data;

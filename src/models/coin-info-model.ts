@@ -1,6 +1,10 @@
-// ============================
-// 1. The Messy Api Type (Data Transfer Object)
-// ============================
+/*
+    This file holds the price types for the coins and the code that tidies them up.
+    The live API returns prices keyed by coin id, so an adapter turns that into a
+    simple array the app can loop over. There is also a shape for the backup file
+    saved in the public folder, with its own adapter that reuses the first one.
+*/
+
 export type CoinInfoModelApi = {
     [coinId: string]: {
         usd: number;
@@ -9,9 +13,6 @@ export type CoinInfoModelApi = {
     };
 };
 
-// ============================
-// 2. The Clean App Type (Domain Model)
-// ============================
 export type CoinInfoModel = {
     id: string;
     usd: number;
@@ -19,9 +20,7 @@ export type CoinInfoModel = {
     ils: number;
 };
 
-// ============================
-// 3. The Adapter Function
-// ============================
+// Turns the API prices into an array
 export const adaptCoinInfo = (data: CoinInfoModelApi): CoinInfoModel[] => {
     return Object.entries(data).map(([coinId, values]) => ({
         id: coinId,
@@ -29,21 +28,12 @@ export const adaptCoinInfo = (data: CoinInfoModelApi): CoinInfoModel[] => {
     }));
 };
 
-// ============================
-// 4. The same three parts again, for the saved file in /public
-// ============================
-
-// The saved rows carry the whole CoinGecko market payload. current_price is the only
-// field worth reading off them, and it is already in dollars.
 export type CoinBackupApi = {
     id: string;
     current_price: number;
 };
 
-// Reshapes the saved rows into the API shape above, then hands them to the adapter
-// that was already here -- so a backup coin ends up as the exact same CoinInfoModel
-// a live coin does. eur and ils stay at 0 because the saved file only ever had dollars,
-// and dollars are all the reports page reads.
+// Turns the saved backup rows into prices
 export const adaptCoinBackup = (data: CoinBackupApi[]): CoinInfoModel[] => {
 
     const asApiShape: CoinInfoModelApi = {};

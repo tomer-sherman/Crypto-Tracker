@@ -1,3 +1,9 @@
+/*
+    This file draws the area that holds the coins the user is tracking.
+    It reads the selection from global state and shows either the welcome text or a row of coin chips.
+    When a sixth coin is picked it also puts the maximum reached dialog on screen.
+*/
+
 import { useSelector } from "react-redux";
 import { AppState } from "../../../../redux/app-state";
 import { CoinModel } from "../../../../models/coin-model";
@@ -6,21 +12,9 @@ import { WelcomeNoteMicroComp } from "../micro-comps/welcome-note-micro-comp";
 import { ValidationDialogRendComp } from "./validation-dialog-rend-comp";
 import "./checked-list-rend-comp.css";
 
-/* ============================================================================
-   Rendering comp — LIST side. The tracked-coins dropzone.
-
-   Owns the selection itself: it reads the tracked coins out of Redux, decides
-   between the welcome copy and a row of chips, and — because the sixth coin is
-   a fact about this selection and nothing else — it is also what puts the
-   "maximum reached" dialog on screen. The page above no longer has to know that
-   the limit exists.
-
-   The dialog is a `position: fixed` element, so mounting it here does not add a
-   flex item to this row and nothing shifts. Nothing on the path down to it
-   carries a transform, a filter or a backdrop-filter, which is what keeps its
-   full-screen backdrop measured against the viewport.
-   ============================================================================ */
+// Shows the coins the user is tracking
 export function CheckedListRendComp() {
+    // Reads the tracked coins from global state
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
     const count = selectedCoins.length;
 

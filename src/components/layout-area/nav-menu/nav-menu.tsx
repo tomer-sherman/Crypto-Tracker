@@ -1,3 +1,10 @@
+/*
+    This file holds the NavMenu component of the app.
+    It shows the links that move between the Home, Reports, Recommendation, and About pages.
+    It also holds the coin search box, and every keystroke is saved into the global state.
+    Other pages read that saved text so they can filter the coins they show.
+*/
+
 import { NavLink } from "react-router-dom";
 import "./nav-menu.css";
 import { useSelector } from "react-redux";
@@ -9,10 +16,12 @@ import { store } from "../../../redux/store";
 
 
 
+// Shows the page links and search box
 export function NavMenu() {
-    // Read the current search query from the global state
+    // Reads the search text from global state
     const currentSearch = useSelector<AppState, string>(state => state.searchQuery);
 
+    // Saves the typed search text to the store
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         
         const action = searchQuerySlice.actions.updateSearchQuery(event.target.value);

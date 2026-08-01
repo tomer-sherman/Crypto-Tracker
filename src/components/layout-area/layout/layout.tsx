@@ -1,3 +1,10 @@
+/*
+    This file holds the Layout component, which is the main frame of the app.
+    It puts the header, the page content, and the footer on the screen in order.
+    It also runs a timer that refreshes the coin prices once a minute.
+    It watches the scroll position so a floating nav menu appears further down the page.
+*/
+
 import { useEffect, useState } from "react";
 import { Footer } from "../footer/footer";
 import { Header } from "../header/header";
@@ -8,18 +15,17 @@ import { coinService } from "../../../services/coin-service";
 import { notify } from "../../../utils/notify";
 import "./layout.css";
 
+// Builds the main frame of the app
 export function Layout() {
+    // Holds whether the floating nav is visible
     const [showNav, setShowNav] = useState(false);
 
-    // The app's clock. Layout never unmounts, so this one interval runs for the
-    // whole session and keeps every page's currency values fresh.
+    // Refreshes the coin prices every minute
     useEffect(() => {
         const timer = setInterval(() => {
 
-            // Read at tick time, not render time -- always the current 100 coins.
             const coinIds = store.getState().hundredCoins.map(c => c.id).join(",");
 
-            // Home hasn't loaded them yet -- skip this tick and try again in a minute.
             if (!coinIds) return;
 
             coinService.initCoinInfo(coinIds).catch(err => notify.error(err.message));
@@ -28,9 +34,8 @@ export function Layout() {
         return () => clearInterval(timer);
     }, []);
 
-    // This listens to the scroll position of the .Layout div
+    // Shows or hides the nav on scroll
     const handleScroll = (e: any) => {
-        // Calculate 75% of the user's screen height
         const threshold = window.innerHeight * 0.75;
 
         if (e.currentTarget.scrollTop > threshold) {
@@ -43,7 +48,6 @@ export function Layout() {
     return (
         <div className="Layout" onScroll={handleScroll}>
 
-            {/* The wrapper gets the 'active' class only when showNav is true */}
             <nav className={`floating-nav ${showNav ? 'active' : ''}`}>
                 <NavMenu />
             </nav>

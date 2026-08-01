@@ -1,22 +1,16 @@
+/*
+    This file shows the basic identity of one coin: its logo, its symbol and its name.
+    It also declares the CoinProp type that every coin component in the app uses.
+    It returns a fragment instead of a wrapper, because the cards around it style these elements as their own direct children.
+*/
+
 import { CoinModel } from "../../../../models/coin-model";
 
-/* The prop shape every coin-driven component in this app takes. It is declared
-   here because this is the smallest thing in the tree that reads a CoinModel,
-   so everything above it imports the type from this file instead of each
-   component re-declaring its own copy. */
 export type CoinProp = {
     coin: CoinModel;
 }
 
-/* ============================================================================
-   Micro comp — a coin's mark, ticker and name. Nothing else, no state.
-
-   It returns a fragment on purpose. Both cards that use it — the grid tile in
-   coin-rend-comp and the chip in coin-chip-micro-comp — style these three
-   elements as their own DIRECT children (`.CryptoCard img`,
-   `.CryptoCard span:nth-of-type(1)` and so on), so a wrapper element here would
-   quietly break the layout of both.
-   ============================================================================ */
+// Shows a coin logo, symbol and name
 export function CoinIdentityMicroComp(props: CoinProp) {
     return (
         <>

@@ -1,3 +1,10 @@
+/*
+    This file draws the price readout inside a graph card header. It shows the
+    current price, how far it has moved since the page opened, and a badge
+    saying whether the number is real, simulated or missing. A null price means
+    the first reading has not landed yet, so it shows dots instead.
+*/
+
 import { GraphSource } from "../../../../models/graph-model";
 import { formatPrice } from "./graph-format";
 
@@ -6,38 +13,24 @@ type GraphReadoutProp = {
     changePercent: number;
     trend: string;
 
-    // Null while the feed is still being worked out, which is the state a card
-    // opens in and stays in for a few seconds.
     source: GraphSource | null;
 }
 
-// What each kind of feed calls its number, and the badge that goes under it.
-// Both spelled out per source rather than derived, because the whole point of
-// the badge is that a user reads it and knows exactly what they are looking at.
+// Label text for each price source
 const LABELS: Record<GraphSource, string> = {
     live: "Live market value",
     simulated: "Simulated market value",
     unavailable: "No market value"
 };
 
+// Badge text for each price source
 const BADGES: Record<GraphSource, string> = {
     live: "Real data",
     simulated: "Mock data",
     unavailable: "No data"
 };
 
-/* ============================================================================
-   Micro comp — the live price readout in a graph header.
-
-   Given a price, a session change, which way it is going and where any of it
-   came from, it draws them. The `null` price is the state before the first
-   reading has landed.
-
-   Every card carries a badge, including the real ones. Marking only the
-   simulated cards would leave "this is real market data" as something the user
-   has to infer from the absence of a warning, and a number a user is going to
-   read as real should have to say so.
-   ============================================================================ */
+// Draws the live price readout
 export function GraphReadoutMicroComp(props: GraphReadoutProp) {
 
     const source = props.source;
@@ -51,8 +44,6 @@ export function GraphReadoutMicroComp(props: GraphReadoutProp) {
 
             <div className="graph-readout-tags">
 
-                {/* Nothing has been drawn yet, so there is no change to report --
-                    a 0.00% here would read as a measurement rather than a blank. */}
                 {props.price !== null && (
                     <span className={"graph-change " + props.trend}>
                         {props.changePercent >= 0 ? "▲" : "▼"} {Math.abs(props.changePercent).toFixed(2)}%

@@ -1,3 +1,9 @@
+/*
+    This file holds the small panel that shows the AI answer for one coin.
+    It takes an answer object and prints the short verdict plus its description.
+    It also reports back when its animation has ended, so the card above can decide what to do next.
+*/
+
 import { AiAnswerModel } from "../../../../models/ai-answer-model";
 
 type AiAnswerProp = {
@@ -6,18 +12,10 @@ type AiAnswerProp = {
     onAnimationEnd: () => void;
 }
 
-/* ============================================================================
-   Micro comp — the model's verdict panel.
-
-   It shows an AiAnswerModel and reports back when its animation has finished;
-   the card above decides what that means. Nothing inside this panel may be
-   animated: `animationend` bubbles, so a moving child would tell the card the
-   exit is over while it is still on screen.
-   ============================================================================ */
+// Shows the AI answer panel
 export function AiAnswerMicroComp(props: AiAnswerProp) {
     return (
         <div
-            /* Dynamically add the 'closing' class to trigger the reverse animation */
             className={`ai-feedback ${props.isClosing ? "closing" : ""}`}
             onAnimationEnd={props.onAnimationEnd}
         >

@@ -1,3 +1,9 @@
+/*
+    This file builds the Redux store for the app.
+    It joins the four slices together under the keys listed in AppState.
+    Every component that reads or changes global state goes through this store.
+*/
+
 import { configureStore } from "@reduxjs/toolkit";
 import { AppState } from "./app-state";
 import { hundredCoinsSlice } from "./hundred-coin-slice";
@@ -6,6 +12,7 @@ import { searchQuerySlice } from "./search-query-slice";
 import { coinsInfoSlice } from "./coins-info-slice";
 
 
+// The single store for the app
 export const store = configureStore<AppState>({
     reducer: {
         hundredCoins: hundredCoinsSlice.reducer,

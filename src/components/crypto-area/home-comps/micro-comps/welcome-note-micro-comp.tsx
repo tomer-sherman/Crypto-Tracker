@@ -1,13 +1,12 @@
-/* ============================================================================
-   Micro comp — the welcome copy shown in the dropzone while nothing is tracked.
+/*
+    This file holds the welcome text shown in the tracked coins area.
+    It appears while the user has not picked any coin yet.
+    The text is static, so the component takes no props and holds no state.
+*/
 
-   Static text, so it takes no props. The double `.empty-state-wrapper` nesting
-   is kept exactly as it was: checked-list-rend-comp.css is written around this
-   markup, and its `:nth-child` stagger counts these five paragraphs.
-   ============================================================================ */
+// Shows the welcome text for new users
 export function WelcomeNoteMicroComp() {
     return (
-        // ADDED CLASS HERE
         <div className="empty-state-wrapper">
             <div className="empty-state-wrapper">
                 <p className="empty-text">WELCOME TO CRYPTO TRACKER</p>

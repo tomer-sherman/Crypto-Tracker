@@ -1,11 +1,18 @@
+/*
+    This file holds the About page of the crypto tracker app.
+    The top half explains what the app does, listing its main features and the
+    technologies it was built with. The bottom half is a short personal profile
+    of the student who made it. It is a static page, so there is no data fetching here.
+*/
+
 import "./about.css";
 import profilePic from "../../../assets/me.jpeg";
 
+// Shows the about page
 export function About() {
     return (
         <div className="About">
 
-            {/* ---------- Part 1: what this application is ---------- */}
             <h1>About This App</h1>
 
             <p className="lead">
@@ -58,7 +65,6 @@ export function About() {
 
             </div>
 
-            {/* ---------- Technology stack ---------- */}
             <div className="tech-stack">
                 <p className="tech-title"><strong>Technology Stack</strong></p>
 
@@ -74,7 +80,6 @@ export function About() {
                 </div>
             </div>
 
-            {/* ---------- Part 2: about me ---------- */}
             <div className="section-divider" />
 
             <h2>About Me</h2>

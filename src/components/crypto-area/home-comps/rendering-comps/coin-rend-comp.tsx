@@ -1,3 +1,10 @@
+/*
+    This file draws one coin tile on the home grid.
+    It decides if the price panel is open and picks that coin's prices out of the data already in global state.
+    It also shows the checkbox that tracks or untracks the coin.
+    The two micro components under it only display what they get.
+*/
+
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "../../../../redux/app-state";
@@ -9,22 +16,20 @@ import { CoinIdentityMicroComp, CoinProp } from "../micro-comps/coin-identity-mi
 import { CoinPricesMicroComp } from "../micro-comps/coin-prices-micro-comp";
 import "./coin-rend-comp.css";
 
-/* ============================================================================
-   Rendering comp — CHILD side. One tile on the home grid.
-
-   Everything a single tile has to decide for itself lives here and nowhere
-   else: whether its price panel is open, fetching that panel's data the first
-   time it is asked for, and whether this coin is currently tracked. The two
-   micro comps below it just draw what they are handed.
-   ============================================================================ */
+// Draws one coin tile on the grid
 export function CoinRendComp(props: CoinProp) {
 
+    // Holds this coin's prices once loaded
     const [coinInfo, setCoinInfo] = useState<CoinInfoModel>();
+    // Tells if the price panel is open
     const [flag, setFlag] = useState<boolean>(false);
+    // Reads the tracked coins from global state
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
     const isSelected = selectedCoins.some(c => c.id === props.coin.id);
+    // Reads the prices of all hundred coins
     const hundredCoinsInfo = useSelector<AppState, CoinInfoModel[]>(state => state.coinsInfo);
 
+    // Opens or closes the price panel
     async function triggerInfo() {
         const isOpening = !flag;
         setFlag(isOpening);
@@ -36,6 +41,7 @@ export function CoinRendComp(props: CoinProp) {
         }
     }
 
+    // Adds or removes this coin from the selection
     async function triggerSelect() {
         isSelected ?
             coinService.unSelectOnceCoin(props.coin.id)
@@ -56,10 +62,8 @@ export function CoinRendComp(props: CoinProp) {
                 {flag ? "Close" : "More Info"}
             </button>
 
-            {/* NEW DESIGNED INFO PANEL WITH SMOOTH RESIZE WRAPPER */}
             <CoinPricesMicroComp coinInfo={coinInfo} isOpen={flag} />
 
-            {/* Optional loading state while waiting for the API */}
             {flag && !coinInfo && <span className="loading-text">Fetching data...</span>}
         </div>
     );

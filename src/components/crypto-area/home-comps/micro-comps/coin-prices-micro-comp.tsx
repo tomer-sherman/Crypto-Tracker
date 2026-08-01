@@ -1,3 +1,9 @@
+/*
+    This file shows the price panel of a coin tile.
+    It prints the same coin's value in dollars, euros and shekels.
+    It holds no state and fetches nothing, the tile above it decides when to open and passes the data down.
+*/
+
 import { CoinInfoModel } from "../../../../models/coin-info-model";
 
 type CoinPricesProp = {
@@ -5,15 +11,7 @@ type CoinPricesProp = {
     isOpen: boolean;
 }
 
-/* ============================================================================
-   Micro comp — the three-currency price panel of a grid tile.
-
-   Purely how a CoinInfoModel is shown. It owns no state and fetches nothing:
-   the tile above it decides when to open and hands the data down.
-
-   No stylesheet of its own — the panel is styled from coin-rend-comp.css, which
-   anchors these classes to `.CryptoList .CryptoCard` so they cannot leak.
-   ============================================================================ */
+// Shows one coin's price in three currencies
 export function CoinPricesMicroComp(props: CoinPricesProp) {
     return (
         <div className={`coin-info-wrapper ${props.isOpen && props.coinInfo ? "open" : ""}`}>

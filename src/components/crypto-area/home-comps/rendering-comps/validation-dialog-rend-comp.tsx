@@ -1,3 +1,9 @@
+/*
+    This file holds the dialog that appears when the user picks a sixth coin.
+    It lists the five coins already tracked and lets the user drop one of them or go back.
+    The removal is delayed by the length of the closing animation, so the dialog can finish sliding away before the state changes.
+*/
+
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "../../../../redux/app-state";
@@ -6,32 +12,24 @@ import { coinService } from "../../../../services/coin-service";
 import { CoinChipMicroComp } from "../micro-comps/coin-chip-micro-comp";
 import "./validation-dialog-rend-comp.css";
 
-/* ============================================================================
-   Rendering comp — the "you already have five" modal.
-
-   Mounted by checked-list-rend-comp, never by a page. It owns its own exit:
-   the click is held for the length of the CSS animation before Redux is
-   touched, otherwise the coin would vanish and take the modal with it before
-   the animation had a chance to play.
-   ============================================================================ */
+// Shows the maximum coins reached dialog
 export function ValidationDialogRendComp() {
+    // Reads the tracked coins from global state
     const selectedCoins = useSelector<AppState, CoinModel[]>(state => state.selectedCoins);
 
-    // 1. New state to track if the modal is currently animating out
+    // Tells if the dialog is animating out
     const [isClosing, setIsClosing] = useState<boolean>(false);
 
-    // 2. New handler that delays the actual unSelect function
+    // Closes the dialog then removes the coin
     function handleClose(coinId: string) {
-        setIsClosing(true); // Triggers the closing CSS class
+        setIsClosing(true);
 
-        // Waits 400ms (the exact length of our CSS animation) before updating Redux
         setTimeout(() => {
             coinService.unSelectOnceCoin(coinId);
         }, 400);
     }
 
     return (
-        /* 3. Apply the 'closing' class dynamically based on state */
         <div className={`validation-backdrop ${isClosing ? 'closing' : ''}`}>
             <div className="ValidationDialog">
 
@@ -44,13 +42,11 @@ export function ValidationDialogRendComp() {
                         <div className="replace-item" key={c.id}>
                             <CoinChipMicroComp coin={c} />
 
-                            {/* 4. Point buttons to the new delayed handler */}
                             <button className="replace-btn" onClick={() => handleClose(c.id)}>Remove</button>
                         </div>
                     ))}
                 </div>
 
-                {/* 4. Point buttons to the new delayed handler */}
                 <button className="back-btn" onClick={() => handleClose(selectedCoins[5]?.id)}>Go Back</button>
 
             </div>

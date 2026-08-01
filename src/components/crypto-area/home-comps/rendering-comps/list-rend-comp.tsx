@@ -1,3 +1,9 @@
+/*
+    This file draws the paged grid of the top hundred coins on the home page.
+    It loads the coins once, filters them by the search text kept in global state, and splits the result into pages.
+    It also chooses the slide direction between pages and shows skeletons while loading or a message when nothing matches.
+*/
+
 import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "../../../../redux/app-state";
@@ -11,25 +17,22 @@ import { PaginationMenu } from "../../../shared-area/pagination-menu/pagination-
 import "./list-rend-comp.css";
 import { paginateCoins } from "../../../../utils/pagination-page-math";
 
-/* ============================================================================
-   Rendering comp — LIST side. The paged grid of the top 100 coins.
-
-   This is where the page-level work happens: fetching the coins once, reacting
-   to the search box in Redux, the pagination maths, the swipe direction and the
-   loading / empty / loaded branch. Each tile it renders then owns its own
-   little world, so none of that logic has to be repeated 20 times.
-   ============================================================================ */
+// Draws the paged grid of coins
 export function ListRendComp() {
+    // Holds the hundred coins that were loaded
     const [coins, setCoins] = useState<CoinModel[]>([]);
+    // Tells if the coins are still loading
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    // Holds the page the user is on
     const [currentPage, setCurrentPage] = useState<number>(1);
-    // 1. New state to track which direction the grid should swipe
+    // Holds the direction the grid slides
     const [slideDirection, setSlideDirection] = useState<string>("slide-forward");
 
+    // Reads the search text from global state
     const currentSearch = useSelector<AppState, string>(state => state.searchQuery);
     const itemsPerPage = 20;
 
-    // --- Side Effects ---
+    // Loads the hundred coins on first render
     useEffect(() => {
         coinService.getHundredCoins()
             .then(setCoins)
@@ -37,28 +40,29 @@ export function ListRendComp() {
             .finally(() => setIsLoading(false));
     }, []);
 
+    // Resets to page one on new search
     useEffect(() => {
         setCurrentPage(1);
     }, [currentSearch]);
 
-    // --- Data Processing util ---
+    // Holds the coins matching the search
     const filteredCoins = useMemo(() => filterCoinsBySearch(coins, currentSearch), [coins, currentSearch]);
 
-    // --- Pagination math util --
     const { currentCoins, totalPages, hasResults } = paginateCoins(filteredCoins, currentPage, itemsPerPage);
 
 
-    // 2. Custom function to calculate the swipe direction before updating the page
+    // Sets the slide direction and the page
     const handlePageChange = (newPage: number) => {
         if (newPage > currentPage) {
-            setSlideDirection("slide-forward"); // Moving forward: slides in from the right
+            setSlideDirection("slide-forward");
         } else {
-            setSlideDirection("slide-backward"); // Moving backward: slides in from the left
+            setSlideDirection("slide-backward");
         }
         setCurrentPage(newPage);
     };
 
 
+    // Picks skeletons, a message or the tiles
     const renderGridContent = () => {
         if (isLoading) return Array(itemsPerPage).fill(0).map((_, i) => <CryptoCardSkeleton key={i} />);
         if (!hasResults) return <p className="no-results">No coins found matching "{currentSearch}"</p>;
@@ -67,7 +71,6 @@ export function ListRendComp() {
 
     return (
         <div className="CryptoList">
-            {/* Changed totalPages > 1 to totalPages > 0 */}
             {!isLoading && totalPages > 0 && (
                 <PaginationMenu
                     currentPage={currentPage}

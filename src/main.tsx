@@ -1,3 +1,9 @@
+/*
+    This file is the starting point of the whole app. It finds the root element in
+    the html page and renders the Layout component into it. It also wraps everything
+    in the redux Provider and the router, so every component can reach the global
+    state and move between pages.
+*/
 
 import { createRoot } from 'react-dom/client'
 import './index.css'
