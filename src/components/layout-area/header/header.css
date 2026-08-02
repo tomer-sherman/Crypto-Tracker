@@ -25,12 +25,12 @@
        The photo is positioned against the viewport rather than this element,
        so it holds still while the hero scrolls up and off it.
 
-       The image is 6000x4000. Sized by the larger of 132vw and 152vh it always
+       The image is 2560x1707. Sized by the larger of 132vw and 152vh it always
        covers the screen and still leaves horizontal slack to pan across. The
        plain `cover` above it is the fallback for engines that will not take a
        max() inside background-size. */
     background-color: var(--ct-void);
-    background-image: url('../../../assets/city.jpg');
+    background-image: url('../../../assets/city.webp');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: 50% center;
