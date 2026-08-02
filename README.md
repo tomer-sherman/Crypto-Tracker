@@ -167,19 +167,3 @@ Because models like to wrap their JSON in prose and code fences, [`json-sanitize
 
 ---
 
-## How I worked
-
-I used Claude Code throughout this project, most heavily on [`graph-service.ts`](src/services/graph-service.ts).
-
-WebSockets were the part I knew least going in, so I worked the way I'd want to work on a team: I specified the behavior I wanted — three states (live / simulated / unavailable), a grace period before falling back, and a full teardown of both the socket and every simulation timer on unmount — and then iterated over many prompts until the implementation actually matched that spec. It started out inside `coin-service`, and I pulled it into its own service once it outgrew its home.
-
-The design decisions in that file are mine, and I can defend every one of them.
-
----
-
-## What I'd do next
-
-- **Move the OpenAI call behind a server function.** The key is inlined into the client bundle today; a Firebase Function would hold it server-side and let me rate-limit per user.
-- **Reconnect the socket instead of surrendering to simulation.** `onclose` currently migrates every coin to a simulated feed permanently — an exponential-backoff reconnect would recover real data instead.
-- **Persist the selection.** Selected coins live in Redux only, so a refresh wipes them. localStorage would fix it in a few lines.
-- **Test the graph state machine.** The live / simulated / unavailable transitions are the most intricate logic in the app and the least verified.
