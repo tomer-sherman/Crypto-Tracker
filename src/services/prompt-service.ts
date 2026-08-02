@@ -20,7 +20,7 @@ class PromptService {
 
         try {
             const info = await this.getAiInfo(coinId);
-            
+
             const systemPrompt = "You are an expert crypto coin trader and mentor for other traders.";
             const userPrompt = `
         Help me decide if I should buy ${coinId} or not. 
@@ -40,8 +40,7 @@ class PromptService {
         RETURN YOUR ANSWER ONLY IN THIS JSON FORMAT!!!!.
         `
             const completion = await gptService.getCompletion(systemPrompt, userPrompt);
-            const aiInsight =  jsonSanitizer.sanitize(completion)
-            console.log("AI ANSWER:  " + aiInsight.answer+ ",  AI DESC: " + aiInsight.description);
+            const aiInsight = jsonSanitizer.sanitize(completion);
 
             return aiInsight;
 

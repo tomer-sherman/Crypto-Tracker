@@ -68,7 +68,6 @@ class CoinService {
     // Fetches all 100 coins currency at once. // this func is triggered every 60 seconds.
     public async initCoinInfo(coinIds: string): Promise<CoinInfoModel[]> {
 
-        console.log("Fetching Coin Info Data")
         const response = await axios.get<CoinInfoModelApi>(appConfig.hundredCoinsCurrencyUrl + coinIds + "&vs_currencies=usd,eur,ils");
         const coinsInfo = adaptCoinInfo(response.data);
 
