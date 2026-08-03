@@ -75,8 +75,7 @@ export function About() {
                     <span className="tech-item">React Router</span>
                     <span className="tech-item">Axios</span>
                     <span className="tech-item">WebSockets</span>
-                    <span className="tech-item">Vite</span>
-                    <span className="tech-item">CSS3</span>
+                    <span className="tech-item">CSS</span>
                 </div>
             </div>
 
@@ -100,21 +99,18 @@ export function About() {
 
                 <p className="profile-text">
                     When it comes to code, I care much more about understanding than about
-                    memorizing. Syntax is something you can always look up; what interests me is
+                    memorizing. Syntax is something you can always look up, what interests me is
                     reading complex code and making sense of it, and understanding how an
-                    architecture is put together and why it was built that way. And above all of
-                    that, I love working with AI.
+                    architecture is put together and why it was built that way. 
                 </p>
 
                 <p className="profile-text">
-                    Outside of the keyboard I like working out, and staying generally healthy and
-                    ready. And I drink a serious amount of coffee.
+                    Outside of the keyboard I like working out, and staying generally. And I drink a serious amount of coffee.
                 </p>
 
                 <div className="tag-list">
                     <span className="tag">Coding</span>
                     <span className="tag">Working Out</span>
-                    <span className="tag">Health &amp; Readiness</span>
                     <span className="tag">A Lot Of Coffee</span>
                     <span className="tag">Understanding &gt; Memorizing</span>
                     <span className="tag">Code Architecture</span>

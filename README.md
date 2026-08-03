@@ -3,25 +3,10 @@
 Browse the top 100 crypto coins, watch their prices tick in live on a hand-built SVG chart, and ask an AI whether a coin is worth buying.
 
 **[Live app →](https://sherman-crypto-tracker.firebaseapp.com/home)** · React 19 · TypeScript · Redux Toolkit · Vite · Firebase
+**[Git Hub →](https://github.com/tomer-sherman/Crypto-Tracker)** Git hub link.
 
-<!-- TODO: add a short GIF of the Reports page here — 3-6 seconds of several charts ticking.
-     Save it as docs/reports.gif and uncomment the line below.
-![Five coins updating once per second on the Reports page](docs/reports.gif)
--->
 
----
-
-## The problem that shaped the app
-
-Early on, every "More Info" click fired its own API request — and I kept hitting **429 Too Many Requests**.
-
-I did some research and found out that CoinGecko only updates that data every 1–5 minutes anyway, so fetching a single coin on every click was buying me nothing. So I flipped it around: **one call for all 100 coins, cached in global state, refreshed every 60 seconds.** Clicking "More Info" now just reads from the cache — zero extra requests.
-
-That rule ended up shaping the rest of the app. The graph's fallback prices check the cache first and only fetch when the cache doesn't cover every selected coin ([`graph-service.ts`](src/services/graph-service.ts)), and the coin list returns what's already in state instead of refetching ([`coin-service.ts`](src/services/coin-service.ts)).
-
----
-
-## What it does
+## What the application does
 
 - Fetches the **top 100 coins** from the CoinGecko API and lets you browse, search and page through them.
 - Shows each coin's price in **three currencies** (USD, EUR, ILS), refreshed once a minute.
@@ -41,12 +26,21 @@ That rule ended up shaping the rest of the app. The graph's fallback prices chec
 
 ---
 
+## The problem that shaped the app
+
+Early on, every "More Info" click fired its own API request — and I kept hitting **429 Too Many Requests**.
+
+I did some research and found out that CoinGecko only updates that data every 1–5 minutes anyway, so fetching a single coin on every click was buying me nothing. So I flipped it around: **one call for all 100 coins, cached in global state, refreshed every 60 seconds.** Clicking "More Info" now just reads from the cache — zero extra requests.
+
+That rule ended up shaping the rest of the app. The graph's fallback prices check the cache first and only fetch when the cache doesn't cover every selected coin ([`graph-service.ts`](src/services/graph-service.ts)), and the coin list returns what's already in state instead of refetching ([`coin-service.ts`](src/services/coin-service.ts)).
+
+---
+
 ## Tech stack
 
 | Tool | Role |
 |------|------|
-| **React 19 + TypeScript** | The foundation of the app. |
-| **Vite** | Dev server and build tool. |
+| **React + TypeScript** | The foundation of the app. |
 | **Redux Toolkit** | Global state (coins, selection, search, price cache). |
 | **React Router DOM** | Routing between pages. |
 | **Axios** | All HTTP requests. |

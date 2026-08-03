@@ -12,7 +12,7 @@ export function Footer() {
         <div className="Footer">
 
 			<p>All rights reserved ©</p>
-			<p>Made By Tomer Sherman designed by gemini</p>
+			<p>Made By Tomer Sherman designed by gemini & claude</p>
 
         </div>
     );
