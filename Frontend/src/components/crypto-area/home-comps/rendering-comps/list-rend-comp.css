@@ -1,0 +1,146 @@
+/* ============================================================================
+   list-rend-comp.css — the paged coin grid
+
+   Scoped to .CryptoList. This is also the anchor that coin-rend-comp.css hangs
+   its tile styles from, so the class must stay on this element.
+   ============================================================================ */
+
+.CryptoList {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+
+    /* The shell already pays for the page gutter and the gap above the footer.
+       This element used to add 20px all round plus another 120px underneath on
+       top of that, which is where the dead space at the bottom came from. */
+    padding: 8px 0 0;
+}
+
+/* ----------------------------------------------------------------------------
+   Animation frame
+
+   Clips the incoming page so the swipe never pushes a horizontal scrollbar out
+   of the shell. The negative inline margin plus matching padding gives the card
+   shadows room to spill without narrowing the grid itself.
+   ---------------------------------------------------------------------------- */
+.CryptoList .cards-grid-wrapper {
+    width: auto;
+    overflow: hidden;
+
+    /* The padding buys room inside the clip for the tiles' hover shadow, which
+       reaches furthest below the card; the matching negative margins hand that
+       space back to the layout so the grid still lines up with the rest of the
+       page. Kept under the shell's 16px minimum gutter so nothing can spill off
+       the side of the viewport. */
+    margin: 0 -12px -40px;
+    padding: 14px 12px 40px;
+}
+
+/* ----------------------------------------------------------------------------
+   The grid
+
+   Was a hard repeat(5, 1fr) holding fixed 280px tiles, which overflowed as soon
+   as the window dropped below roughly 1550px. auto-fill lets the row count fall
+   out of the available width instead.
+   ---------------------------------------------------------------------------- */
+.CryptoList .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+    gap: 22px;
+
+    /* Tiles anchor to the top of their row, so opening one card's price panel
+       does not stretch the others beside it. */
+    align-items: start;
+    justify-items: stretch;
+
+    will-change: transform, opacity;
+}
+
+/* ----------------------------------------------------------------------------
+   Page transitions
+
+   CryptoList remounts this element on every page change via its key, so the
+   entrance animation replays on its own. The direction class decides which
+   edge the new page arrives from.
+   ---------------------------------------------------------------------------- */
+.CryptoList .slide-forward {
+    animation: ct-list-in-right 0.42s var(--ct-ease) backwards;
+}
+
+.CryptoList .slide-backward {
+    animation: ct-list-in-left 0.42s var(--ct-ease) backwards;
+}
+
+@keyframes ct-list-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(64px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes ct-list-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-64px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   No search results
+
+   Rendered by CryptoList but never styled before, so it used to land as bare
+   body text in the middle of the grid.
+   ---------------------------------------------------------------------------- */
+.CryptoList .no-results {
+    grid-column: 1 / -1;
+    justify-self: center;
+
+    max-width: 560px;
+    margin: 40px auto;
+    padding: 36px 32px;
+
+    text-align: center;
+    font-family: var(--ct-mono);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--ct-dim);
+
+    background: rgba(13, 19, 33, 0.45);
+    border: 1px dashed var(--ct-line-cyan);
+    border-radius: var(--ct-r-md);
+
+    animation: ct-list-empty-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes ct-list-empty-pulse {
+    from {
+        border-color: rgba(0, 229, 255, 0.18);
+        box-shadow: inset 0 0 0 rgba(0, 229, 255, 0);
+    }
+
+    to {
+        border-color: rgba(0, 229, 255, 0.55);
+        box-shadow: inset 0 0 26px rgba(0, 229, 255, 0.06);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .CryptoList .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+    }
+}

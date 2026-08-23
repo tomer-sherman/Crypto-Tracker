@@ -1,0 +1,313 @@
+/* ============================================================================
+   insight-rend-comp.css — one coin's AI analysis
+
+   Scoped to .AiRecommendationCard. The .ai-feedback panel further down is
+   drawn by AiAnswerMicroComp, which has no stylesheet of its own so those
+   rules can stay anchored here.
+
+   One rule this file has to respect: the card unmounts the answer from an
+   onAnimationEnd handler bound to .ai-feedback, and animationend bubbles.
+   Animating anything *inside* .ai-feedback would fire that handler early and
+   tear the panel out mid-transition, so the h4 and p below stay static and all
+   the motion lives on the panel itself.
+   ============================================================================ */
+
+.AiRecommendationCard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 30px 28px;
+    border-radius: var(--ct-r-lg);
+    overflow: hidden;
+
+    background: linear-gradient(160deg, rgba(20, 28, 48, 0.75), rgba(8, 12, 22, 0.9));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--ct-line);
+    box-shadow: var(--ct-shadow-md);
+
+    font-family: var(--ct-font);
+    transition: border-color var(--ct-base) ease, box-shadow var(--ct-base) ease;
+}
+
+/* Accent across the top */
+.AiRecommendationCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    pointer-events: none;
+
+    background: var(--ct-grad-full);
+    background-size: 200% auto;
+    opacity: 0.85;
+    animation: ct-ai-accent 5s linear infinite;
+}
+
+@keyframes ct-ai-accent {
+    to {
+        background-position: 200% center;
+    }
+}
+
+.AiRecommendationCard:hover {
+    border-color: var(--ct-line-cyan);
+    box-shadow: var(--ct-shadow-lg), var(--ct-glow-cyan);
+}
+
+/* Chip sizing. Two ancestor classes puts this at (0,3,0), above the (0,2,0)
+   base in coin-chip-micro-comp.css, so import order cannot decide it. */
+.AiInsightList .AiRecommendationCard .CryptoCard {
+    width: 148px;
+    cursor: default;
+}
+
+.AiInsightList .AiRecommendationCard .CryptoCard:hover {
+    transform: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Action button
+
+   Ghost at rest, wiping to a full neon fill on hover — the same background
+   position trick the home tiles use, so both pages behave identically.
+   ---------------------------------------------------------------------------- */
+.AiRecommendationCard button {
+    position: relative;
+    overflow: hidden;
+
+    padding: 13px 30px;
+
+    /* Clears the UA button look so nothing native shows through */
+    appearance: none;
+    -webkit-appearance: none;
+
+    border: 1px solid rgba(0, 229, 255, 0.35);
+    border-radius: var(--ct-r-sm);
+    cursor: pointer;
+
+    /* Explicit dark well. `background-image` alone is a longhand and would
+       leave the UA default `background-color: buttonface` — a near-white —
+       behind the translucent resting half of the gradient below. */
+    background-color: rgba(2, 5, 12, 0.78);
+
+    background-image: linear-gradient(90deg,
+            rgba(0, 229, 255, 0.16) 0%,
+            rgba(79, 172, 254, 0.20) 49.9%,
+            #00e5ff 50%,
+            #4facfe 100%);
+    background-size: 202% 100%;
+    background-position: 0% 0;
+
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+    color: var(--ct-cyan);
+    font-family: var(--ct-font);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+
+    transition:
+        background-position var(--ct-base) var(--ct-ease),
+        color var(--ct-quick) ease,
+        border-color var(--ct-quick) ease,
+        box-shadow var(--ct-base) ease,
+        text-shadow var(--ct-quick) ease,
+        transform var(--ct-quick) ease;
+}
+
+.AiRecommendationCard button:hover:not(:disabled) {
+    background-position: 100% 0;
+    color: #05070d;
+    border-color: transparent;
+    text-shadow: none;
+    box-shadow: 0 8px 26px -8px rgba(0, 229, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.AiRecommendationCard button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Answer is open — the control now means "close", so it drops the cyan for the
+   rose end of the palette. Only the colours change; the dark well and the wipe
+   are inherited from the base rule. */
+.AiRecommendationCard button.close-mode {
+    border-color: rgba(245, 87, 108, 0.45);
+    color: var(--ct-rose);
+    text-shadow: 0 0 12px rgba(245, 87, 108, 0.5);
+
+    background-image: linear-gradient(90deg,
+            rgba(245, 87, 108, 0.16) 0%,
+            rgba(240, 147, 251, 0.20) 49.9%,
+            #f5576c 50%,
+            #f093fb 100%);
+}
+
+.AiRecommendationCard button.close-mode:hover:not(:disabled) {
+    box-shadow: 0 8px 26px -8px rgba(245, 87, 108, 0.9);
+}
+
+/* ----------------------------------------------------------------------------
+   Waiting on the model
+   ---------------------------------------------------------------------------- */
+.AiRecommendationCard button:disabled {
+    border-color: var(--ct-line);
+    color: var(--ct-faint);
+    background-image: none;
+    background-color: rgba(2, 5, 12, 0.6);
+    cursor: not-allowed;
+    transform: none;
+    text-shadow: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Explicit edges rather than inset: 0 plus a width — that combination is
+   over-constrained, and the engine resolves it by silently dropping one side. */
+.AiRecommendationCard button:disabled::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 45%;
+    pointer-events: none;
+
+    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.22), transparent);
+    animation: ct-ai-scan 1.4s linear infinite;
+}
+
+@keyframes ct-ai-scan {
+    from {
+        transform: skewX(-20deg) translateX(-160%);
+    }
+
+    to {
+        transform: skewX(-20deg) translateX(340%);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   The answer
+
+   max-height is animated rather than transitioned because the panel mounts and
+   unmounts, and a freshly mounted element has no previous value to transition
+   from. 600px is a ceiling the copy comfortably fits under.
+   ---------------------------------------------------------------------------- */
+.AiRecommendationCard .ai-feedback {
+    width: 100%;
+    padding: 22px;
+    border-radius: var(--ct-r-md);
+    overflow: hidden;
+
+    background: rgba(2, 5, 12, 0.55);
+    border: 1px solid rgba(245, 87, 108, 0.28);
+    box-shadow:
+        inset 0 0 24px rgba(245, 87, 108, 0.05),
+        0 8px 22px -8px rgba(0, 0, 0, 0.7);
+
+    color: var(--ct-text);
+    transform-origin: top;
+    will-change: transform, opacity, max-height;
+
+    animation: ct-ai-answer-in 0.55s var(--ct-ease) backwards;
+}
+
+@keyframes ct-ai-answer-in {
+    from {
+        opacity: 0;
+        transform: translateY(-16px) scaleY(0.92);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: -18px;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        max-height: 600px;
+        padding-top: 22px;
+        padding-bottom: 22px;
+        margin-top: 0;
+    }
+}
+
+/* The verdict */
+.AiRecommendationCard .ai-feedback h4 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+
+    background-image: linear-gradient(90deg, var(--ct-pink), var(--ct-rose));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    /* drop-shadow on a gradient-clipped heading — a text-shadow would paint
+       behind the transparent glyphs and grey the gradient out */
+    filter: drop-shadow(0 0 14px rgba(245, 87, 108, 0.35));
+}
+
+.AiRecommendationCard .ai-feedback p {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--ct-dim);
+}
+
+/* ----------------------------------------------------------------------------
+   Exit
+
+   Runs 0.5s; the component waits for animationend rather than a timer, so the
+   duration here is free to change.
+   ---------------------------------------------------------------------------- */
+.AiRecommendationCard .ai-feedback.closing {
+    animation: ct-ai-answer-out 0.45s var(--ct-ease) both;
+}
+
+@keyframes ct-ai-answer-out {
+    from {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        max-height: 600px;
+        padding-top: 22px;
+        padding-bottom: 22px;
+        margin-top: 0;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-16px) scaleY(0.92);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: -18px;
+        border-color: transparent;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    .AiRecommendationCard {
+        padding: 24px 18px;
+        gap: 18px;
+    }
+
+    .AiRecommendationCard .ai-feedback {
+        padding: 18px;
+    }
+}

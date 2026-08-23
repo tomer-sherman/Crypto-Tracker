@@ -1,0 +1,229 @@
+/* ============================================================================
+   index.css — global foundation
+
+   Only four things are allowed to live in this file:
+     1. the design tokens (custom properties — inert until something uses them)
+     2. the box-sizing reset
+     3. the root canvas (html / body / #root)
+     4. the full-screen CRT overlay, which is deliberately global
+
+   Everything else is scoped inside its own component root class, so no rule
+   in this project can reach a component it was not written for.
+   ============================================================================ */
+
+:root {
+
+    /* --- Neon spectrum -----------------------------------------------------
+       The site used to run three different cyans and four different violets.
+       One value each now, so every glow on the page is the same colour. */
+    --ct-cyan: #00e5ff;
+    --ct-cyan-dim: rgba(0, 229, 255, 0.14);
+    --ct-blue: #4facfe;
+    --ct-violet: #b026ff;
+    --ct-violet-dim: rgba(176, 38, 255, 0.14);
+    --ct-pink: #f093fb;
+    --ct-rose: #f5576c;
+    --ct-amber: #f5a623;
+
+    /* Market direction — the only two colours allowed to mean something */
+    --ct-up: #16c784;
+    --ct-down: #ea3943;
+
+    /* --- Surfaces ---------------------------------------------------------- */
+    --ct-void: #04060b;
+    /* behind everything */
+    --ct-abyss: #070a12;
+    /* page floor */
+    --ct-deep: #0b1120;
+    /* raised floor */
+    --ct-panel: rgba(13, 19, 33, 0.62);
+    /* glass panel */
+    --ct-panel-strong: rgba(11, 16, 28, 0.88);
+    /* opaque glass */
+    --ct-inset: rgba(2, 5, 12, 0.55);
+    /* sunken well */
+
+    /* --- Hairlines ---------------------------------------------------------
+       Sharpness comes from thin, low-contrast lines — not from bright borders. */
+    --ct-line: rgba(148, 163, 184, 0.13);
+    --ct-line-soft: rgba(148, 163, 184, 0.08);
+    --ct-line-cyan: rgba(0, 229, 255, 0.26);
+    --ct-line-violet: rgba(176, 38, 255, 0.26);
+
+    /* --- Text --------------------------------------------------------------- */
+    --ct-text: #e6edf7;
+    --ct-dim: #97a6bd;
+    --ct-faint: #647089;
+
+    /* --- Gradients ---------------------------------------------------------- */
+    --ct-grad-primary: linear-gradient(90deg, #00e5ff, #4facfe, #b026ff);
+    --ct-grad-full: linear-gradient(90deg, #00e5ff, #4facfe, #f093fb, #f5576c);
+    --ct-grad-flow: linear-gradient(90deg, #00e5ff, #4facfe, #b026ff, #f093fb, #00e5ff);
+    --ct-grad-warn: linear-gradient(90deg, #f5a623, #f5576c);
+    --ct-grad-surface: linear-gradient(160deg, rgba(24, 33, 56, 0.70), rgba(8, 12, 22, 0.85));
+
+    /* --- Radii — a four step scale, nothing in between ---------------------- */
+    --ct-r-xs: 6px;
+    --ct-r-sm: 10px;
+    --ct-r-md: 14px;
+    --ct-r-lg: 20px;
+    --ct-r-pill: 999px;
+
+    /* --- Elevation ---------------------------------------------------------- */
+    --ct-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.45);
+    --ct-shadow-md: 0 10px 30px -8px rgba(0, 0, 0, 0.70);
+    --ct-shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.80);
+    --ct-glow-cyan: 0 0 24px -4px rgba(0, 229, 255, 0.45);
+    --ct-glow-violet: 0 0 24px -4px rgba(176, 38, 255, 0.45);
+
+    /* --- Motion ------------------------------------------------------------- */
+    --ct-ease: cubic-bezier(0.16, 1, 0.30, 1);
+    /* decelerate, for entrances */
+    --ct-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* overshoot, for toggles  */
+    --ct-quick: 0.18s;
+    --ct-base: 0.32s;
+    --ct-slow: 0.55s;
+
+    /* --- Typography ---------------------------------------------------------
+       Inter if the machine has it, otherwise the native UI face. Numbers run
+       in a mono face on purpose — a trading readout should line up in columns. */
+    --ct-font: 'Inter', 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --ct-mono: 'Cascadia Mono', 'JetBrains Mono', 'SF Mono', Consolas, ui-monospace, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Reset
+   --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Root canvas
+   --------------------------------------------------------------------------- */
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    background-color: var(--ct-void);
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+
+    /* The Layout element owns scrolling; the page itself must never scroll. */
+    overflow: hidden;
+}
+
+/* Anything that renders numbers asks for this class of face explicitly, but
+   the tabular default here stops prices from jittering as digits change. */
+body {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Selection + focus
+   --------------------------------------------------------------------------- */
+::selection {
+    background: rgba(176, 38, 255, 0.35);
+    color: #ffffff;
+}
+
+/* One visible focus ring for the whole app, keyboard only. */
+:focus-visible {
+    outline: 2px solid var(--ct-cyan);
+    outline-offset: 2px;
+    border-radius: var(--ct-r-xs);
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbars
+   --------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--ct-void);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 229, 255, 0.35), rgba(176, 38, 255, 0.35));
+    border: 2px solid var(--ct-void);
+    border-radius: var(--ct-r-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--ct-cyan), var(--ct-violet));
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 229, 255, 0.35) var(--ct-void);
+}
+
+/* ---------------------------------------------------------------------------
+   Global CRT overlay
+
+   Sits above the entire app and passes every click straight through. The old
+   rule named the animation "scanline Drift" with a space in it, which is not a
+   valid identifier, so it never actually moved.
+   --------------------------------------------------------------------------- */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+
+    background:
+        /* horizontal scanlines */
+        repeating-linear-gradient(180deg,
+            rgba(0, 229, 255, 0.020) 0px,
+            rgba(0, 229, 255, 0.020) 1px,
+            transparent 1px,
+            transparent 3px),
+        /* corner vignette, keeps the eye in the middle of the screen */
+        radial-gradient(ellipse 120% 100% at 50% 50%,
+            transparent 55%,
+            rgba(0, 0, 0, 0.38) 100%);
+
+    animation: ct-global-scanline 8s linear infinite;
+}
+
+@keyframes ct-global-scanline {
+    from {
+        background-position: 0 0, 0 0;
+    }
+
+    to {
+        background-position: 0 3px, 0 0;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+
+   Ambient loops are decoration, so they stop entirely. Transitions are
+   shortened rather than removed, otherwise state changes become invisible.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

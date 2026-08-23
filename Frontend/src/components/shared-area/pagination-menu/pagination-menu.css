@@ -1,0 +1,143 @@
+/* ============================================================================
+   pagination-menu.css — page stepper
+
+   Scoped to .PaginationMenu. The child classes this component uses (.nav-btn,
+   .number-btn, .page-numbers) are generic enough that leaving them unqualified
+   would put them in the way of any future component reaching for the same
+   names, so all three are nested under the root.
+   ============================================================================ */
+
+.PaginationMenu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 30px;
+    padding: 8px 12px;
+
+    background: rgba(13, 19, 33, 0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--ct-line);
+    border-radius: var(--ct-r-pill);
+    box-shadow: var(--ct-shadow-sm);
+}
+
+.PaginationMenu .page-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* ----------------------------------------------------------------------------
+   Back / Next
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .nav-btn {
+    padding: 7px 16px;
+    border-radius: var(--ct-r-pill);
+    cursor: pointer;
+
+    background: transparent;
+    border: 1px solid var(--ct-line);
+    color: var(--ct-dim);
+
+    font-family: var(--ct-font);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    transition: all var(--ct-quick) var(--ct-ease);
+}
+
+.PaginationMenu .nav-btn:hover:not(:disabled) {
+    color: var(--ct-cyan);
+    border-color: var(--ct-line-cyan);
+    background: rgba(0, 229, 255, 0.07);
+    box-shadow: 0 0 16px -4px rgba(0, 229, 255, 0.6);
+}
+
+.PaginationMenu .nav-btn:active:not(:disabled) {
+    transform: scale(0.92);
+}
+
+.PaginationMenu .nav-btn:disabled {
+    border-color: transparent;
+    color: rgba(148, 163, 184, 0.25);
+    cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------------------
+   Page numbers
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .number-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    background: transparent;
+    color: var(--ct-dim);
+
+    font-family: var(--ct-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+
+    transition: all var(--ct-quick) var(--ct-ease);
+}
+
+.PaginationMenu .number-btn:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(0, 229, 255, 0.09);
+    border-color: var(--ct-line-cyan);
+    transform: translateY(-2px);
+}
+
+.PaginationMenu .number-btn:active:not(.active) {
+    transform: scale(0.88);
+}
+
+/* ----------------------------------------------------------------------------
+   Current page
+   ---------------------------------------------------------------------------- */
+.PaginationMenu .number-btn.active {
+    color: #05070d;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--ct-cyan), var(--ct-violet));
+    border-color: transparent;
+    cursor: default;
+
+    animation:
+        ct-page-pop 0.45s var(--ct-snap) both,
+        ct-page-halo 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes ct-page-pop {
+    from {
+        transform: scale(0.55);
+        opacity: 0.4;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes ct-page-halo {
+    from {
+        box-shadow: 0 0 6px -1px rgba(0, 229, 255, 0.5);
+    }
+
+    to {
+        box-shadow: 0 0 18px 1px rgba(176, 38, 255, 0.75);
+    }
+}

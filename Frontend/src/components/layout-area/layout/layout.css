@@ -1,0 +1,283 @@
+/* ============================================================================
+   layout.css — the application shell
+
+   .Layout is the scroll container. The onScroll handler in layout.tsx reads
+   scrollTop off this element, so it must keep a fixed height and its own
+   overflow. Everything below is scoped to .Layout.
+   ============================================================================ */
+
+.Layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* keeps the React scroll listener alive */
+    width: 100%;
+
+    color: var(--ct-text);
+    font-family: var(--ct-font);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Smooths the jump when the nav bar appears */
+    scroll-behavior: smooth;
+
+    /* Layered floor: two soft aurora blooms over a deep vertical fade.
+       Fixed attachment so the blooms stay put while content scrolls past. */
+    background-color: var(--ct-abyss);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 12% 0%, rgba(0, 229, 255, 0.10), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 88% 30%, rgba(176, 38, 255, 0.10), transparent 60%),
+        linear-gradient(180deg, #070a12 0%, #0a0e1a 45%, #06080f 100%);
+    background-attachment: fixed;
+
+    animation: ct-layout-boot 0.7s var(--ct-ease) both;
+}
+
+@keyframes ct-layout-boot {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Hero slot
+
+   The Header component paints itself; this only reserves the viewport and
+   dissolves the bottom edge into the dashboard instead of cutting it with a
+   hard border.
+   ---------------------------------------------------------------------------- */
+.Layout>header {
+    position: relative;
+    height: 100vh;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+/* Gradient hairline seam, brightest in the middle and faded at both ends */
+.Layout>header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-line-cyan) 25%,
+            rgba(176, 38, 255, 0.55) 50%,
+            var(--ct-line-cyan) 75%,
+            transparent);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Dashboard area
+   ---------------------------------------------------------------------------- */
+.Layout>main {
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-height: 100vh;
+
+    /* Single source of page padding. Pages inside only set their own max-width,
+       which is why the old stacked 100px + 120px bottom gap is gone. */
+    padding: clamp(28px, 4vw, 60px) clamp(16px, 3vw, 40px) clamp(64px, 8vw, 110px);
+
+    /* Glow bleeding up out of the hero seam */
+    background:
+        radial-gradient(ellipse 60% 260px at 50% 0%, rgba(0, 229, 255, 0.07), transparent 70%);
+}
+
+/* Technical grid, drawn behind the page content */
+.Layout>main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+
+    /* Fades out top and bottom so the grid never meets an edge */
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+
+    animation: ct-layout-grid 9s ease-in-out infinite alternate;
+}
+
+@keyframes ct-layout-grid {
+    from {
+        opacity: 0.35;
+    }
+
+    to {
+        opacity: 0.85;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Routing host
+
+   Routing renders an unclassed wrapper around the matched page. Lifting it
+   above the grid and fading it in gives every route the same entrance.
+
+   Opacity only, deliberately: the ValidationDialog is position: fixed and lives
+   inside this subtree, and any lingering transform here would turn its parent
+   into a containing block and break the modal's full-screen backdrop.
+   ---------------------------------------------------------------------------- */
+.Layout .Routing {
+    position: relative;
+    z-index: 1;
+}
+
+.Layout .Routing>* {
+    animation: ct-layout-route-in 0.45s var(--ct-ease) backwards;
+}
+
+@keyframes ct-layout-route-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Footer
+   ---------------------------------------------------------------------------- */
+.Layout>footer {
+    position: relative;
+    height: 64px;
+    flex-shrink: 0;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(180deg, rgba(4, 6, 11, 0.7), var(--ct-void));
+    border-top: 1px solid var(--ct-line-soft);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+/* ----------------------------------------------------------------------------
+   Scroll-triggered top navigation
+
+   .floating-nav on its own scores lower than the old `.Layout nav` rule, so the
+   bar was resolving to position: absolute and only behaved like a fixed bar by
+   accident. Both states are written at the same specificity here so the result
+   no longer depends on rule order.
+   ---------------------------------------------------------------------------- */
+.Layout nav.floating-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+
+    /* Hidden state: lifted out of view, slightly scaled back and blurred so it
+       resolves into place rather than simply sliding. */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-102%);
+    filter: blur(6px);
+
+    transition:
+        transform var(--ct-slow) var(--ct-ease),
+        opacity var(--ct-base) ease,
+        filter var(--ct-base) ease,
+        visibility 0s linear var(--ct-slow);
+}
+
+.Layout nav.floating-nav.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    filter: blur(0);
+
+    transition:
+        transform var(--ct-slow) var(--ct-ease),
+        opacity var(--ct-base) ease,
+        filter var(--ct-base) ease,
+        visibility 0s;
+}
+
+/* ----------------------------------------------------------------------------
+   Scroll progress bar
+
+   Painted by the scroll position itself rather than by a listener. Browsers
+   without scroll-driven animations simply never show it.
+   ---------------------------------------------------------------------------- */
+@supports (animation-timeline: scroll()) {
+    .Layout::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 100%;
+        z-index: 1001;
+        pointer-events: none;
+
+        background: var(--ct-grad-full);
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.55);
+        transform-origin: 0 50%;
+
+        animation: ct-layout-progress linear;
+        animation-timeline: scroll(nearest block);
+    }
+
+    @keyframes ct-layout-progress {
+        from {
+            transform: scaleX(0);
+        }
+
+        to {
+            transform: scaleX(1);
+        }
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Scrollbar for the shell itself
+   ---------------------------------------------------------------------------- */
+.Layout::-webkit-scrollbar {
+    width: 10px;
+}
+
+.Layout::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.Layout::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--ct-cyan), var(--ct-violet));
+    border: 2px solid var(--ct-void);
+    border-radius: var(--ct-r-pill);
+}
+
+/* ----------------------------------------------------------------------------
+   Small screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .Layout>main {
+        padding: 24px 14px 72px;
+    }
+
+    .Layout>footer {
+        height: 76px;
+    }
+}

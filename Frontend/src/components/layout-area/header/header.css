@@ -1,0 +1,318 @@
+/* ============================================================================
+   header.css — the parallax hero
+
+   Scoped entirely to .Header. The markup is a single <p> inside the wrapper,
+   so every other layer on this screen is a pseudo-element.
+
+   Depth is built from three stacked planes:
+     plane 1  the city photo, pinned to the viewport      (.Header background)
+     plane 2  scrims, grid and the dissolve into the page (.Header::before)
+     plane 3  the title, which drifts as you scroll       (.Header p)
+   ============================================================================ */
+
+.Header {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* --- Plane 1: the photograph ------------------------------------------
+       background-attachment: fixed is what actually produces the parallax.
+       The photo is positioned against the viewport rather than this element,
+       so it holds still while the hero scrolls up and off it.
+
+       The image is 2560x1707. Sized by the larger of 132vw and 152vh it always
+       covers the screen and still leaves horizontal slack to pan across. The
+       plain `cover` above it is the fallback for engines that will not take a
+       max() inside background-size. */
+    background-color: var(--ct-void);
+    background-image: url('../../../assets/city.webp');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 50% center;
+    background-size: cover;
+    background-size: max(132vw, 152vh) auto;
+}
+
+/* ----------------------------------------------------------------------------
+   Plane 2: scrims
+
+   Four layers in one element, painted back to front:
+     - a soft cyan/violet colour wash, so the photo joins the site palette
+     - a radial pool behind the title, which is what actually makes it legible
+     - the technical grid
+     - a bottom fade that dissolves the hero into the dashboard floor
+   ---------------------------------------------------------------------------- */
+.Header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+
+    background-image:
+        /* grid */
+        linear-gradient(rgba(0, 229, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.055) 1px, transparent 1px),
+        /* legibility pool behind the wordmark */
+        radial-gradient(ellipse 58% 42% at 50% 50%, rgba(4, 6, 11, 0.82), transparent 72%),
+        /* edge darkening left and right */
+        linear-gradient(90deg, rgba(4, 6, 11, 0.92) 0%, rgba(4, 6, 11, 0.30) 30%,
+            rgba(4, 6, 11, 0.30) 70%, rgba(4, 6, 11, 0.92) 100%),
+        /* colour wash */
+        linear-gradient(120deg, rgba(0, 229, 255, 0.14), transparent 45%, rgba(176, 38, 255, 0.18)),
+        /* dissolve into the page floor */
+        linear-gradient(180deg, rgba(4, 6, 11, 0.55) 0%, transparent 22%,
+            transparent 62%, rgba(6, 8, 15, 0.85) 88%, #06080f 100%);
+
+    background-size:
+        56px 56px,
+        56px 56px,
+        auto, auto, auto, auto;
+}
+
+/* ----------------------------------------------------------------------------
+   Plane 3: the wordmark
+   ---------------------------------------------------------------------------- */
+.Header p {
+    position: relative;
+    z-index: 2;
+
+    /* Scales with the viewport instead of sitting at a fixed 10rem, which
+       overflowed the moment the window was narrower than a desktop monitor. */
+    font-size: clamp(2.1rem, 9vw, 8.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    text-align: center;
+    text-wrap: balance;
+
+    /* Trailing letter-spacing pushes the visual centre left; this pulls it back */
+    padding-left: 0.10em;
+
+    background-image: var(--ct-grad-flow);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    filter:
+        drop-shadow(0 0 28px rgba(0, 229, 255, 0.35))
+        drop-shadow(0 6px 24px rgba(4, 6, 11, 0.9));
+
+    animation: ct-hero-shimmer 7s linear infinite;
+}
+
+@keyframes ct-hero-shimmer {
+    to {
+        background-position: 250% center;
+    }
+}
+
+/* Hairline rules bracketing the wordmark, top and bottom.
+   Both are empty boxes, so the parent's background-clip: text cannot affect
+   them; they only inherit the drop-shadow, which is what gives them their glow. */
+.Header p::before,
+.Header p::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    height: 1px;
+    width: min(46vw, 460px);
+
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-cyan) 30%,
+            var(--ct-violet) 70%,
+            transparent);
+    opacity: 0.75;
+}
+
+.Header p::before {
+    top: -0.42em;
+    animation: ct-hero-rule 5s var(--ct-ease) infinite alternate;
+}
+
+.Header p::after {
+    bottom: -0.42em;
+    animation: ct-hero-rule 5s var(--ct-ease) infinite alternate-reverse;
+}
+
+@keyframes ct-hero-rule {
+    from {
+        width: min(24vw, 240px);
+        opacity: 0.35;
+    }
+
+    to {
+        width: min(52vw, 520px);
+        opacity: 0.9;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Scroll cue
+
+   A short vertical track at the foot of the hero with a light running down it.
+   ---------------------------------------------------------------------------- */
+.Header::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    bottom: 46px;
+    left: 50%;
+    margin-left: -1px;
+
+    width: 2px;
+    height: 62px;
+    border-radius: var(--ct-r-pill);
+    pointer-events: none;
+
+    background-color: rgba(230, 237, 247, 0.10);
+    background-image: linear-gradient(180deg,
+            transparent 0%,
+            var(--ct-cyan) 35%,
+            var(--ct-cyan) 55%,
+            transparent 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 55%;
+
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
+    animation: ct-hero-cue 2.4s var(--ct-ease) infinite;
+}
+
+@keyframes ct-hero-cue {
+    0% {
+        background-position: 0 -60%;
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        background-position: 0 160%;
+        opacity: 0;
+    }
+}
+
+/* ============================================================================
+   Scroll-driven enhancement
+
+   Everything above already parallaxes through background-attachment. This block
+   adds the second layer of motion for engines that support scroll timelines,
+   and is skipped entirely everywhere else.
+
+   view() maps progress to the hero's own trip through the viewport. The hero is
+   exactly one viewport tall and starts flush against the top, so it sits at
+   cover 50% while untouched and reaches cover 100% the instant it has fully
+   scrolled away. Pinning the range to that window makes the whole effect play
+   out over the first screen of scrolling and then stop.
+   ============================================================================ */
+@supports (animation-timeline: view()) {
+
+    .Header {
+        animation: ct-hero-pan linear both;
+        animation-timeline: view();
+        animation-range: cover 50% cover 100%;
+    }
+
+    @keyframes ct-hero-pan {
+        from {
+            background-position: 38% center;
+        }
+
+        to {
+            background-position: 62% center;
+        }
+    }
+
+    /* Scrims deepen as the hero leaves, handing the eye over to the dashboard.
+       Driven with brightness rather than opacity, which has nowhere left to go
+       once a layer is already fully painted. */
+    .Header::before {
+        animation: ct-hero-dim linear both;
+        animation-timeline: view();
+        animation-range: cover 50% cover 100%;
+    }
+
+    @keyframes ct-hero-dim {
+        from {
+            filter: brightness(1);
+        }
+
+        to {
+            filter: brightness(0.45);
+        }
+    }
+
+    /* The wordmark drifts up faster than the photo and fades out. Two planes
+       moving at different speeds is what actually reads as depth. */
+    .Header p {
+        animation:
+            ct-hero-shimmer 7s linear infinite,
+            ct-hero-lift linear both;
+        animation-timeline: auto, view();
+        animation-range: normal, cover 50% cover 92%;
+    }
+
+    @keyframes ct-hero-lift {
+        from {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateY(-30%) scale(0.86);
+            opacity: 0;
+        }
+    }
+
+    /* The cue is only useful before the user has scrolled */
+    .Header::after {
+        animation:
+            ct-hero-cue 2.4s var(--ct-ease) infinite,
+            ct-hero-cue-out linear both;
+        animation-timeline: auto, view();
+        animation-range: normal, cover 50% cover 60%;
+    }
+
+    @keyframes ct-hero-cue-out {
+        to {
+            opacity: 0;
+        }
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Small screens
+
+   background-attachment: fixed is unreliable on mobile browsers — several
+   ignore it and some blow the image up to the full document height. Scroll
+   attachment with cover is the honest result there.
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .Header {
+        background-attachment: scroll;
+        background-size: cover;
+        background-position: 50% center;
+    }
+
+    .Header::after {
+        bottom: 30px;
+        height: 46px;
+    }
+}

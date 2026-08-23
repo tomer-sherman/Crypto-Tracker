@@ -1,0 +1,130 @@
+/* ============================================================================
+   footer.css — two lines of small print
+
+   Scoped to .Footer. The component renders exactly two <p> elements, so they
+   are addressed by position.
+   ============================================================================ */
+
+.Footer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
+}
+
+/* A light sweeping along the top edge, on a long cycle so it stays ambient
+   rather than becoming something the eye tracks. */
+.Footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 1px;
+    pointer-events: none;
+
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-cyan) 45%,
+            var(--ct-violet) 55%,
+            transparent);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.55);
+
+    animation: ct-footer-laser 7s var(--ct-ease) infinite;
+}
+
+@keyframes ct-footer-laser {
+
+    0%,
+    8% {
+        left: -60%;
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    62% {
+        opacity: 1;
+    }
+
+    72%,
+    100% {
+        left: 160%;
+        opacity: 0;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Type
+   ---------------------------------------------------------------------------- */
+.Footer p {
+    font-family: var(--ct-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ct-faint);
+
+    transition: color var(--ct-base) ease, text-shadow var(--ct-base) ease;
+}
+
+.Footer p:hover {
+    color: var(--ct-dim);
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+}
+
+/* ----------------------------------------------------------------------------
+   Credit line, with a terminal cursor parked at the end
+   ---------------------------------------------------------------------------- */
+.Footer p:last-child {
+    display: flex;
+    align-items: center;
+}
+
+.Footer p:last-child::after {
+    content: "_";
+    margin-left: 5px;
+    color: var(--ct-cyan);
+    text-shadow: 0 0 10px var(--ct-cyan);
+    animation: ct-footer-caret 1.1s step-end infinite;
+}
+
+@keyframes ct-footer-caret {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens — stack the two lines instead of letting them collide
+   ---------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+    .Footer {
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0 1rem;
+    }
+
+    .Footer p {
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        white-space: normal;
+        text-align: center;
+    }
+}

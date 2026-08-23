@@ -1,0 +1,293 @@
+/* ============================================================================
+   validation-dialog-rend-comp.css — the "you already have five" modal
+
+   Scoped to .validation-backdrop and .ValidationDialog. The component swaps a
+   `closing` class on the backdrop and waits 400ms before touching Redux, so the
+   exit animations here have to finish inside that window.
+   ============================================================================ */
+
+.validation-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    overflow-y: auto;
+
+    background: radial-gradient(ellipse at center, rgba(14, 6, 26, 0.86), rgba(3, 4, 9, 0.94));
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+
+    animation: ct-modal-veil-in 0.3s ease backwards;
+}
+
+@keyframes ct-modal-veil-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   The panel
+   ---------------------------------------------------------------------------- */
+.ValidationDialog {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    padding: 40px clamp(20px, 4vw, 44px);
+    border-radius: var(--ct-r-lg);
+    overflow: hidden;
+    text-align: center;
+
+    background: linear-gradient(160deg, rgba(32, 16, 54, 0.96), rgba(12, 7, 24, 0.98));
+    border: 1px solid rgba(176, 38, 255, 0.4);
+    box-shadow:
+        var(--ct-shadow-lg),
+        0 0 60px -18px rgba(176, 38, 255, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    animation: ct-modal-in 0.4s var(--ct-snap) backwards;
+}
+
+/* Warning accent across the top of the panel */
+.ValidationDialog::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ct-rose), var(--ct-violet), var(--ct-rose));
+    background-size: 200% auto;
+    animation: ct-modal-accent 3.5s linear infinite;
+}
+
+@keyframes ct-modal-accent {
+    to {
+        background-position: 200% center;
+    }
+}
+
+@keyframes ct-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.88) translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Copy
+   ---------------------------------------------------------------------------- */
+.ValidationDialog h1 {
+    margin-bottom: 18px;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+
+    background-image: linear-gradient(90deg, var(--ct-rose), var(--ct-pink), var(--ct-rose));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 16px rgba(245, 87, 108, 0.45));
+    animation: ct-modal-accent 4s linear infinite;
+}
+
+.ValidationDialog p {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #ded0f5;
+}
+
+.ValidationDialog p strong {
+    font-weight: 800;
+    color: var(--ct-cyan);
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+}
+
+/* ----------------------------------------------------------------------------
+   The five current coins
+   ---------------------------------------------------------------------------- */
+.ValidationDialog .replace-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    margin: 34px 0;
+}
+
+.ValidationDialog .replace-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    animation: ct-modal-item-in 0.45s var(--ct-ease) backwards;
+}
+
+/* Cascading arrival across the row */
+.ValidationDialog .replace-item:nth-child(1) {
+    animation-delay: 0.10s;
+}
+
+.ValidationDialog .replace-item:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.ValidationDialog .replace-item:nth-child(3) {
+    animation-delay: 0.22s;
+}
+
+.ValidationDialog .replace-item:nth-child(4) {
+    animation-delay: 0.28s;
+}
+
+.ValidationDialog .replace-item:nth-child(5) {
+    animation-delay: 0.34s;
+}
+
+@keyframes ct-modal-item-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chip sizing — two ancestor classes, so this outranks the shared base */
+.ValidationDialog .replace-item .CryptoCard {
+    width: 128px;
+    padding: 18px 14px;
+    cursor: default;
+}
+
+.ValidationDialog .replace-item .CryptoCard:hover {
+    transform: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Remove buttons
+   ---------------------------------------------------------------------------- */
+.ValidationDialog .replace-btn {
+    width: 100%;
+    padding: 9px 20px;
+    border-radius: var(--ct-r-sm);
+    cursor: pointer;
+
+    background: rgba(176, 38, 255, 0.08);
+    border: 1px solid rgba(176, 38, 255, 0.45);
+    color: #d8a2ff;
+
+    font-family: var(--ct-font);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    transition: all var(--ct-quick) ease;
+}
+
+.ValidationDialog .replace-btn:hover {
+    background: linear-gradient(90deg, var(--ct-violet), var(--ct-rose));
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 6px 20px -6px rgba(245, 87, 108, 0.8);
+    transform: translateY(-2px);
+}
+
+.ValidationDialog .replace-btn:active {
+    transform: translateY(0);
+}
+
+/* ----------------------------------------------------------------------------
+   Dismiss
+   ---------------------------------------------------------------------------- */
+.ValidationDialog .back-btn {
+    padding: 12px 34px;
+    border-radius: var(--ct-r-sm);
+    cursor: pointer;
+
+    background: transparent;
+    border: 1px solid var(--ct-line);
+    color: var(--ct-dim);
+
+    font-family: var(--ct-font);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    transition: all var(--ct-quick) ease;
+}
+
+.ValidationDialog .back-btn:hover {
+    border-color: var(--ct-rose);
+    color: var(--ct-rose);
+    background: rgba(245, 87, 108, 0.07);
+    box-shadow: 0 0 22px -6px rgba(245, 87, 108, 0.7);
+}
+
+/* ----------------------------------------------------------------------------
+   Exit
+
+   Both halves run 0.4s to match the setTimeout that removes the coin.
+   ---------------------------------------------------------------------------- */
+.validation-backdrop.closing {
+    animation: ct-modal-veil-out 0.4s ease both;
+    pointer-events: none;
+}
+
+.validation-backdrop.closing .ValidationDialog {
+    animation: ct-modal-out 0.4s var(--ct-ease) both;
+}
+
+@keyframes ct-modal-veil-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes ct-modal-out {
+    to {
+        opacity: 0;
+        transform: scale(0.88) translateY(24px);
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Narrow screens
+   ---------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    .ValidationDialog {
+        padding: 28px 18px;
+    }
+
+    .ValidationDialog .replace-list {
+        gap: 12px;
+        margin: 26px 0;
+    }
+
+    .ValidationDialog .replace-item .CryptoCard {
+        width: 108px;
+        padding: 14px 10px;
+    }
+}

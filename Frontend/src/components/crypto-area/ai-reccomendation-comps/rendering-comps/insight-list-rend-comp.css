@@ -1,0 +1,71 @@
+/* ============================================================================
+   insight-list-rend-comp.css — the grid of AI cards
+
+   Scoped to .AiInsightList, which is also the anchor insight-rend-comp.css
+   uses to outrank the shared chip styles.
+   ============================================================================ */
+
+.AiInsightList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: 28px;
+
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 36px 0 0;
+
+    /* Cards grow as their answers open, so each row anchors to its own top
+       edge instead of every sibling stretching to match the tallest one. */
+    align-items: start;
+}
+
+/* ----------------------------------------------------------------------------
+   Cascading entrance
+
+   Applied to the direct children rather than to the card class, so the stagger
+   belongs to the list and the card stays reusable.
+   ---------------------------------------------------------------------------- */
+.AiInsightList>* {
+    animation: ct-ailist-in 0.65s var(--ct-ease) backwards;
+}
+
+.AiInsightList> :nth-child(1) {
+    animation-delay: 0.08s;
+}
+
+.AiInsightList> :nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.AiInsightList> :nth-child(3) {
+    animation-delay: 0.24s;
+}
+
+.AiInsightList> :nth-child(4) {
+    animation-delay: 0.32s;
+}
+
+.AiInsightList> :nth-child(n+5) {
+    animation-delay: 0.40s;
+}
+
+@keyframes ct-ailist-in {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 700px) {
+    .AiInsightList {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+        padding-top: 26px;
+    }
+}

@@ -1,0 +1,101 @@
+/* ============================================================================
+   home.css — the dashboard page
+
+   Scoped to .Home.
+
+   One constraint worth stating: .Home must never end up with a transform, and
+   nothing here may leave one behind through a forwards-filled animation. The
+   ValidationDialogRendComp modal is a position: fixed element mounted further
+   down this subtree — inside CheckedListRendComp, under .checked-list-wrapper —
+   and a transform on any ancestor would make that ancestor its containing
+   block, which would quietly break the modal's full-screen backdrop. That is
+   also why .checked-list-wrapper below stays a plain spacing element.
+   ============================================================================ */
+
+.Home {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ----------------------------------------------------------------------------
+   Page title
+   ---------------------------------------------------------------------------- */
+.Home .home-title {
+    position: relative;
+    margin-bottom: 40px;
+    padding-bottom: 18px;
+
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.14em;
+    text-align: center;
+    text-wrap: balance;
+
+    /* Trailing letter-spacing offsets the optical centre; this pulls it back */
+    padding-left: 0.14em;
+
+    background-image: var(--ct-grad-flow);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.28));
+    animation: ct-home-title-flow 6s linear infinite;
+}
+
+@keyframes ct-home-title-flow {
+    to {
+        background-position: 220% center;
+    }
+}
+
+/* Hairline underneath, opening out from the centre once on load */
+.Home .home-title::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+
+    height: 1px;
+    width: min(60%, 420px);
+    border-radius: var(--ct-r-pill);
+
+    background: linear-gradient(90deg,
+            transparent,
+            var(--ct-cyan) 25%,
+            var(--ct-violet) 75%,
+            transparent);
+
+    animation: ct-home-rule-open 0.9s var(--ct-ease) both;
+}
+
+@keyframes ct-home-rule-open {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+
+    to {
+        width: min(60%, 420px);
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   Dropzone slot
+
+   Purely a spacing wrapper. It used to carry transform: scale(1), which does
+   nothing visually but does create a containing block, so it is gone.
+   ---------------------------------------------------------------------------- */
+.Home .checked-list-wrapper {
+    width: 100%;
+}
